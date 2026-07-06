@@ -65,6 +65,19 @@
   #tblBH01 .secrow td{background:#EDF3F8; font-weight:700; color:var(--navy);}
   #tblBH01 .partrow td{background:#E3EDF6; font-weight:700; color:var(--navy);}
   .bh01-sign{display:flex; justify-content:space-around; text-align:center; font-size:12.5px; margin:18px 0 6px;}
+  #tabNav{display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;}
+  #tabNav button{background:#fff; border:1.5px solid var(--line); color:var(--muted); border-radius:24px; padding:9px 20px; font-weight:600; font-size:13.5px;}
+  #tabNav button.active{background:var(--navy); border-color:var(--navy); color:#fff;}
+  #tabNav button:hover:not(.active){border-color:var(--teal); color:var(--teal-dark);}
+  .stepline{display:flex; align-items:center; gap:9px; font-size:13px; color:var(--muted); margin:2px 0 10px;}
+  .stepnum{background:var(--teal); color:#fff; width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex:none;}
+  .help h3{font-size:14.5px; color:var(--navy); margin:20px 0 8px; padding-bottom:5px; border-bottom:1px solid var(--line);}
+  .help h3:first-child{margin-top:0;}
+  .help ol,.help ul{margin:8px 0 8px 24px; font-size:13.5px;}
+  .help li{margin:7px 0; line-height:1.55;}
+  .help table{margin:10px 0;}
+  .help td:first-child{white-space:nowrap; font-weight:600; color:var(--navy);}
+  .help .b{display:inline-block; background:#E0F3F3; color:var(--teal-dark); font-size:12px; font-weight:700; padding:1px 9px; border-radius:11px;}
   #status{font-size:13.5px; color:var(--muted);}
   #status.err{color:var(--err); font-weight:600;}
 
@@ -110,6 +123,14 @@
 </header>
 
 <main>
+  <nav id="tabNav">
+    <button data-tab="tabThang" class="active">📋 Đối chiếu tháng (Mẫu 01)</button>
+    <button data-tab="tabQuy">📊 Tổng hợp quý (BH02)</button>
+    <button data-tab="tabHelp">❓ Hướng dẫn sử dụng</button>
+  </nav>
+
+  <div id="tabThang">
+  <div class="stepline"><span class="stepnum">1</span>Nạp file — chỉ cần File 1 nếu chỉ muốn chuyển đổi / xem BH01; đủ cả 2 file thì tool <b>&nbsp;tự động đối chiếu</b></div>
   <div class="drop-row">
     <div class="dropzone dz-his" id="dzHis">
       <span class="dz-tag">FILE 1 · HIS</span>
@@ -127,11 +148,12 @@
     </div>
   </div>
 
+  <div class="stepline" style="margin-top:16px"><span class="stepnum">2</span>Thao tác — đối chiếu đã tự chạy khi đủ 2 file, các nút dưới dùng khi cần chạy lại hoặc dùng tính năng khác</div>
   <div class="actions">
-    <button id="btnRun" disabled>Đối chiếu</button>
-    <button id="btnConvert" disabled>Chuyển đổi sang MAU01_BH (TT12)</button>
-    <button id="btnViewBH01" disabled>Xem báo cáo BH01</button>
-    <button id="btnExport">Xuất báo cáo Excel</button>
+    <button id="btnRun" disabled title="So khớp từng hồ sơ giữa File 1 (HIS) và File 2 (BHXH)">Đối chiếu lại</button>
+    <button id="btnConvert" disabled title="Tạo file BaoCao_MAU01_BH để đẩy lên cổng BHXH (tự áp các phương án sửa đã chọn ở mục 4)">Chuyển đổi sang MAU01_BH (TT12)</button>
+    <button id="btnViewBH01" disabled title="Xem Mẫu số 01/BH ngay trên web và xuất Excel BH01 chuẩn TT12">Xem báo cáo BH01</button>
+    <button id="btnExport" title="Xuất kết quả đối chiếu ra Excel để lưu/báo cáo">Xuất báo cáo Excel</button>
     <span id="status"></span>
   </div>
 
@@ -198,7 +220,9 @@
       <div class="scroll"><table id="tblOrphan"></table></div>
     </div>
   </div>
+  </div><!-- /tabThang -->
 
+  <div id="tabQuy" style="display:none">
   <div class="card" id="cardBh02">
     <h2><span class="n">Q</span>Tổng hợp Mẫu số 02/BH theo quý <span style="font-weight:400;color:var(--muted);font-size:12.5px">(từ các file BaoCao_MAU01_BH tải trên cổng BHXH các tháng trong quý · TT 12/2026/TT-BTC)</span></h2>
     <div class="drop-row">
@@ -245,6 +269,60 @@
       </div>
     </div>
   </div>
+  </div><!-- /tabQuy -->
+
+  <div id="tabHelp" style="display:none">
+    <div class="card help">
+      <h3>🎯 Tool này làm gì?</h3>
+      <div class="scroll"><table>
+        <tr><th>Tính năng</th><th>Cần file gì</th><th>Kết quả</th></tr>
+        <tr><td>Đối chiếu Mẫu 01 ↔ cổng BHXH</td><td>File 1 (HIS) + File 2 (TKDLXML)</td><td>Bảng lệch từng hồ sơ, từng trường; hồ sơ chỉ có một bên</td></tr>
+        <tr><td>Sửa trường lệch</td><td>Sau khi đối chiếu</td><td>File BaoCao_01 / TKDLXML đã sửa; BH01 đã sửa</td></tr>
+        <tr><td>Chuyển đổi MAU01_BH</td><td>Chỉ cần File 1</td><td>File BaoCao_MAU01_BH đẩy lên cổng (đúng TT12, tự áp sửa đổi)</td></tr>
+        <tr><td>Xem / xuất BH01</td><td>Chỉ cần File 1</td><td>Mẫu số 01/BH xem trên web + Excel chuẩn có kẻ viền</td></tr>
+        <tr><td>Tổng hợp BH02 quý</td><td>3 file Mau01BH các tháng (cổng)</td><td>Mẫu số 02/BH + đối chiếu với BaoCao_02 của HIS</td></tr>
+      </table></div>
+
+      <h3>📋 Quy trình hằng tháng (tab "Đối chiếu tháng")</h3>
+      <ol>
+        <li><b>Xuất Mẫu 01 từ HIS</b> — nhận cả hai định dạng: <span class="b">BaoCao_01</span> (bảng trình bày) hoặc <span class="b">BaoCao_MAU01_BH</span> (file phẳng).</li>
+        <li><b>Tải file từ cổng giám định BHXH</b>: mục Thống kê dữ liệu XML → "DS hồ sơ đã đề nghị thanh toán" (TKDLXML).</li>
+        <li><b>Kéo 2 file vào 2 ô</b> — tool tự động đối chiếu ngay, không cần bấm gì.</li>
+        <li><b>Đọc kết quả</b>: mục 1 tổng quan ghép hồ sơ; mục 2 tổng tiền toàn kỳ; mục 3 thống kê theo trường; mục 4 chi tiết từng hồ sơ lệch; mục 5 hồ sơ chỉ có ở một bên (thường do chưa đẩy XML hoặc hồ sơ trùng).</li>
+        <li><b>Sửa lệch (mục 4)</b>: chọn phương án cho từng dòng rồi tải file đã sửa. Ý nghĩa:
+          <ul>
+            <li><span class="b">HIS ← theo BHXH</span>: ghi giá trị của cổng vào file HIS (dùng khi HIS sai — vd họ tên theo thẻ).</li>
+            <li><span class="b">BHXH ← theo HIS</span>: ghi giá trị HIS vào file TKDLXML (khi cổng sai — cần đẩy lại XML).</li>
+            <li><span class="b">Nhập tay</span>: gõ giá trị đúng, áp cho cả hai file.</li>
+            <li>Khi sửa cột tiền, tool tự cân đối lại: (3)=(4)+(5), (2)=(3)+(6)+(7) và tính lại dòng tổng.</li>
+          </ul></li>
+        <li><b>Tạo file gửi cổng</b>: bấm "Chuyển đổi sang MAU01_BH (TT12)" — file tải về đã áp mọi sửa đổi đã chọn, upload thẳng lên cổng.</li>
+      </ol>
+
+      <h3>📊 Quy trình hằng quý (tab "Tổng hợp quý BH02")</h3>
+      <ol>
+        <li>Tải 3 file <span class="b">Mau01BH_&lt;mã&gt;_yyyymm.xlsx</span> của 3 tháng trong quý từ cổng BHXH, kéo cả 3 vào ô bên trái.</li>
+        <li>(Nên làm) Xuất <span class="b">BaoCao_02</span> từ HIS, kéo vào ô bên phải để đối chiếu chéo.</li>
+        <li>Bấm <b>Tổng hợp BH02</b> — xem bảng quyết toán 4 mục, kiểm tra cảnh báo (thiếu tháng, trùng tháng, hồ sơ "Chưa đề nghị"…) và bảng đối chiếu HIS ↔ cổng (ô lệch tô đỏ).</li>
+        <li>Bấm <b>Xuất Excel BH02</b> — file đúng biểu mẫu Phụ lục I TT12, có số tiền bằng chữ, sẵn sàng trình ký.</li>
+      </ol>
+
+      <h3>⚙️ Quy tắc tool áp dụng</h3>
+      <ul>
+        <li>Ghép hồ sơ theo <b>Mã thẻ BHYT + thời điểm vào viện</b> (chính xác đến phút); sai số tiền cho phép ±0,5đ.</li>
+        <li>Mã loại KCB theo <b>QĐ 824/QĐ-BYT</b>; phân mục I–IV / 1–4 theo <b>TT 12/2026/TT-BTC</b> (Mục 1={01,06,07}, Mục 2={02,05,08}, Mục 3={04,09}, Mục 4={03}).</li>
+        <li>Giờ phút được <b>cắt giây</b> (không làm tròn) — khớp cách HIS sinh XML, tránh lệch 1 phút "Ngày vào nội trú" trên cổng.</li>
+        <li>Chênh lệch họ tên chỉ khác vị trí dấu (òa/oà…) được tách riêng — thường không bị giám định bắt lỗi.</li>
+        <li>Tiền trên BH02 làm tròn đến đồng theo TT12; so sánh với HIS cũng sau khi làm tròn.</li>
+      </ul>
+
+      <h3>🔒 An toàn dữ liệu</h3>
+      <ul>
+        <li>Mọi file Excel được xử lý <b>ngay trên trình duyệt của bạn</b> — không gửi lên bất kỳ máy chủ nào, kể cả khi mở tool qua link online.</li>
+        <li>Các file tải về (file đã sửa, BH01, BH02, MAU01_BH) nằm trong thư mục Downloads của máy.</li>
+      </ul>
+    </div>
+  </div>
 </main>
 <footer>Tool nội bộ phòng CNTT · So khớp theo Mã thẻ BHYT + thời điểm vào viện (đến phút) · Sai số tiền cho phép ±0,5 đ</footer>
 
@@ -263,18 +341,30 @@ function wireDZ(dz, input, fi, setter){
     if(e.dataTransfer.files[0]) setter(e.dataTransfer.files[0]);
   });
 }
-function setHis(f){ fileHis=f; showFile('fiHis','dzHis',f); check(); }
-function setBhxh(f){ fileBhxh=f; showFile('fiBhxh','dzBhxh',f); check(); }
+let autoNeeded=false; // đủ 2 file → tự chạy đối chiếu, không cần bấm nút
+function setHis(f){ fileHis=f; autoNeeded=true; showFile('fiHis','dzHis',f); check(); }
+function setBhxh(f){ fileBhxh=f; autoNeeded=true; showFile('fiBhxh','dzBhxh',f); check(); }
 function showFile(fiId,dzId,f){
   const fi=document.getElementById(fiId);
   fi.textContent='✓ '+f.name; fi.style.display='block';
   document.getElementById(dzId).classList.add('loaded');
 }
 function check(){
-  document.getElementById('btnRun').disabled = !(fileHis&&fileBhxh);
+  const ready=!!(fileHis&&fileBhxh);
+  document.getElementById('btnRun').disabled = !ready;
   document.getElementById('btnConvert').disabled = !fileHis;
   document.getElementById('btnViewBH01').disabled = !fileHis;
+  if(ready&&autoNeeded){ autoNeeded=false; document.getElementById('btnRun').click(); }
 }
+/* ---------- Tabs ---------- */
+function showTab(id){
+  for(const t of ['tabThang','tabQuy','tabHelp']){
+    const e=document.getElementById(t); if(e) e.style.display = t===id?'block':'none';
+  }
+  document.querySelectorAll('#tabNav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===id));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+document.querySelectorAll('#tabNav button').forEach(b=>b.addEventListener('click', ()=>showTab(b.dataset.tab)));
 wireDZ(document.getElementById('dzHis'), document.getElementById('inHis'), 'fiHis', setHis);
 wireDZ(document.getElementById('dzBhxh'), document.getElementById('inBhxh'), 'fiBhxh', setBhxh);
 
@@ -1447,6 +1537,7 @@ document.getElementById('btnRun').addEventListener('click', async ()=>{
     result=reconcile(his,bhxh);
     render(result);
     st.textContent=`Xong: ${result.matched.length}/${result.nHis} hồ sơ ghép khớp.`;
+    document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
   }catch(err){
     st.className='err'; st.textContent='Lỗi: '+err.message;
   }finally{
