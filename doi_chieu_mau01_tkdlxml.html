@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đối chiếu MAU01 – TKDLXML | BV Mắt Sài Gòn – Sông Hàn</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.min.js"></script>
+<style>
+  :root{
+    --navy:#0F2A43; --navy-2:#16395C; --teal:#0E9C9B; --teal-dark:#0B7E7D;
+    --bg:#F2F6F9; --card:#FFFFFF; --line:#DCE6EE; --ink:#1B2A38; --muted:#5D7285;
+    --ok:#0E8A5F; --warn:#B45309; --err:#C0392B; --ok-bg:#E7F5EF; --warn-bg:#FDF3E3; --err-bg:#FBEAE7;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; background:var(--bg); color:var(--ink); line-height:1.5;}
+  header{background:linear-gradient(120deg, var(--navy) 0%, var(--navy-2) 70%, #1C4A74 100%); color:#fff; padding:26px 32px;}
+  header .brand{display:flex; align-items:center; gap:14px;}
+  header .logo{width:44px; height:44px; flex:none;}
+  header h1{font-size:21px; font-weight:700; letter-spacing:.2px;}
+  header p{font-size:13px; color:#B9CCDD; margin-top:2px;}
+  main{max-width:1200px; margin:0 auto; padding:26px 24px 60px;}
+
+  .drop-row{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  @media(max-width:760px){.drop-row{grid-template-columns:1fr;}}
+  .dropzone{background:var(--card); border:2px dashed var(--line); border-radius:12px; padding:22px; text-align:center; cursor:pointer; transition:border-color .15s, background .15s; position:relative;}
+  .dropzone:hover, .dropzone.dragover{border-color:var(--teal); background:#F2FBFB;}
+  .dropzone.loaded{border-style:solid; border-color:var(--teal);}
+  .dropzone .dz-tag{display:inline-block; font-size:11px; font-weight:700; letter-spacing:.8px; padding:3px 10px; border-radius:20px; margin-bottom:8px;}
+  .dz-his .dz-tag{background:#E3EDF6; color:var(--navy);}
+  .dz-bhxh .dz-tag{background:#E0F3F3; color:var(--teal-dark);}
+  .dropzone h3{font-size:15px; margin-bottom:4px;}
+  .dropzone .hint{font-size:12.5px; color:var(--muted);}
+  .dropzone .fileinfo{margin-top:10px; font-size:13px; color:var(--ok); font-weight:600; word-break:break-all; display:none;}
+  .dropzone input{display:none;}
+
+  .actions{display:flex; gap:12px; align-items:center; margin:20px 0; flex-wrap:wrap;}
+  button{font:inherit; border:none; border-radius:8px; padding:11px 22px; font-weight:600; cursor:pointer;}
+  #btnRun{background:var(--teal); color:#fff;}
+  #btnRun:hover{background:var(--teal-dark);}
+  #btnRun:disabled{background:#B9CBD6; cursor:not-allowed;}
+  #btnExport{background:#fff; color:var(--navy); border:1.5px solid var(--navy); display:none;}
+  #btnExport:hover{background:#EEF4F9;}
+  #btnConvert{background:var(--navy); color:#fff;}
+  #btnConvert:hover{background:var(--navy-2);}
+  #btnConvert:disabled{background:#B9CBD6; cursor:not-allowed;}
+  .btn-mini{background:#EDF3F8; color:var(--navy); border:1px solid var(--line); padding:8px 14px; font-size:12.5px;}
+  .btn-mini:hover{background:#DFEAF3;}
+  #btnFixHis,#btnFixBhxh{background:var(--teal); color:#fff;}
+  #btnFixHis:hover,#btnFixBhxh:hover{background:var(--teal-dark);}
+  #btnBH01Fixed{background:var(--navy); color:#fff;}
+  #btnBH01Fixed:hover{background:var(--navy-2);}
+  #btnBh02,#btnBH02Xlsx{background:var(--teal); color:#fff;}
+  #btnBh02:hover,#btnBH02Xlsx:hover{background:var(--teal-dark);}
+  #btnBh02:disabled{background:#B9CBD6; cursor:not-allowed;}
+  #tblBH02 .partrow td{background:#E3EDF6; font-weight:700; color:var(--navy);}
+  .fixsel{font:inherit; font-size:12px; padding:4px 6px; border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--ink); max-width:170px;}
+  .fixinp{font:inherit; font-size:12px; padding:4px 6px; border:1px solid var(--teal); border-radius:6px; margin-top:4px; width:160px; display:none;}
+  #btnViewBH01{background:#fff; color:var(--navy); border:1.5px solid var(--navy);}
+  #btnViewBH01:hover{background:#EEF4F9;}
+  #btnViewBH01:disabled{background:#fff; color:#B9CBD6; border-color:#B9CBD6; cursor:not-allowed;}
+  #btnBH01Xlsx{background:var(--teal); color:#fff;}
+  #btnBH01Xlsx:hover{background:var(--teal-dark);}
+  #tblBH01 th{position:sticky; top:0; z-index:2;}
+  #tblBH01 .hlx{background:#DCF3F2; box-shadow:inset 0 0 0 1.5px var(--teal);}
+  #tblBH01 .secrow td{background:#EDF3F8; font-weight:700; color:var(--navy);}
+  #tblBH01 .partrow td{background:#E3EDF6; font-weight:700; color:var(--navy);}
+  .bh01-sign{display:flex; justify-content:space-around; text-align:center; font-size:12.5px; margin:18px 0 6px;}
+  #tabNav{display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;}
+  #tabNav button{background:#fff; border:1.5px solid var(--line); color:var(--muted); border-radius:24px; padding:9px 20px; font-weight:600; font-size:13.5px;}
+  #tabNav button.active{background:var(--navy); border-color:var(--navy); color:#fff;}
+  #tabNav button:hover:not(.active){border-color:var(--teal); color:var(--teal-dark);}
+  .stepline{display:flex; align-items:center; gap:9px; font-size:13px; color:var(--muted); margin:2px 0 10px;}
+  .stepnum{background:var(--teal); color:#fff; width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex:none;}
+  .help h3{font-size:14.5px; color:var(--navy); margin:20px 0 8px; padding-bottom:5px; border-bottom:1px solid var(--line);}
+  .help h3:first-child{margin-top:0;}
+  .help ol,.help ul{margin:8px 0 8px 24px; font-size:13.5px;}
+  .help li{margin:7px 0; line-height:1.55;}
+  .help table{margin:10px 0;}
+  .help td:first-child{white-space:nowrap; font-weight:600; color:var(--navy);}
+  .help .b{display:inline-block; background:#E0F3F3; color:var(--teal-dark); font-size:12px; font-weight:700; padding:1px 9px; border-radius:11px;}
+  tr.done td{opacity:.45;}
+  tr.done td:last-child, tr.done td.chkcell{opacity:1;}
+  @media print{
+    @page{size:A4 landscape; margin:10mm;}
+    header,#tabNav,.stepline,.drop-row,footer,.actions,.note,#dqArea{display:none!important;}
+    main{max-width:none; padding:0;}
+    .card{border:none; padding:0; margin:0;}
+    .scroll{max-height:none!important; overflow:visible!important;}
+    #tblBH01 th{position:static!important;}
+    body.p-bh01 #resultArea,body.p-bh01 #convertArea,body.p-bh01 #tabQuy,body.p-bh01 #tabHelp{display:none!important;}
+    body.p-bh01 #bh01Area .card>h2{display:none!important;}
+    body.p-bh02 #tabThang,body.p-bh02 #tabHelp{display:none!important;}
+    body.p-bh02 #cardBh02>h2,body.p-bh02 #bh02MonthsWrap,body.p-bh02 #bh02CmpWrap{display:none!important;}
+  }
+  #status{font-size:13.5px; color:var(--muted);}
+  #status.err{color:var(--err); font-weight:600;}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px; margin-bottom:18px;}
+  .card h2{font-size:15px; color:var(--navy); margin-bottom:14px; display:flex; align-items:center; gap:8px;}
+  .card h2 .n{background:var(--navy); color:#fff; font-size:11px; width:20px; height:20px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;}
+
+  .summary-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px;}
+  .stat{border:1px solid var(--line); border-radius:10px; padding:12px 14px;}
+  .stat .v{font-size:22px; font-weight:700;}
+  .stat .l{font-size:12px; color:var(--muted); margin-top:2px;}
+  .stat.ok .v{color:var(--ok);} .stat.warn .v{color:var(--warn);} .stat.err .v{color:var(--err);}
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th,td{border:1px solid var(--line); padding:7px 10px; text-align:left; vertical-align:top;}
+  th{background:#EDF3F8; color:var(--navy); font-size:12px; white-space:nowrap;}
+  td.num{text-align:right; font-variant-numeric:tabular-nums;}
+  tr.match td.badge-cell{color:var(--ok);}
+  .badge{display:inline-block; font-size:11.5px; font-weight:700; padding:2px 9px; border-radius:12px;}
+  .b-ok{background:var(--ok-bg); color:var(--ok);}
+  .b-warn{background:var(--warn-bg); color:var(--warn);}
+  .b-err{background:var(--err-bg); color:var(--err);}
+  .scroll{overflow-x:auto;}
+  .note{font-size:12.5px; color:var(--muted); margin-top:10px;}
+  #resultArea{display:none;}
+  .totals-pair{white-space:nowrap;}
+  footer{text-align:center; font-size:12px; color:var(--muted); padding:14px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 48 48" fill="none">
+      <ellipse cx="24" cy="24" rx="20" ry="13" stroke="#7FD1D0" stroke-width="2.5"/>
+      <circle cx="24" cy="24" r="7.5" fill="#0E9C9B"/>
+      <path d="M20.5 24.2l2.6 2.6 4.8-5.2" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <h1>Đối chiếu MAU01 (HIS) – TKDLXML (BHXH)</h1>
+      <p>Bệnh viện Mắt Sài Gòn – Sông Hàn · Mã CSKCB 48211 </p>
+    </div>
+  </div>
+</header>
+
+<main>
+  <nav id="tabNav">
+    <button data-tab="tabThang" class="active">📋 Đối chiếu tháng (Mẫu 01)</button>
+    <button data-tab="tabQuy">📊 Tổng hợp quý (BH02)</button>
+    <button data-tab="tabHelp">❓ Hướng dẫn sử dụng</button>
+  </nav>
+
+  <div id="tabThang">
+  <div class="stepline"><span class="stepnum">1</span>Nạp file — chỉ cần File 1 nếu chỉ muốn chuyển đổi / xem BH01; đủ cả 2 file thì tool <b>&nbsp;tự động đối chiếu</b></div>
+  <div class="drop-row">
+    <div class="dropzone dz-his" id="dzHis">
+      <span class="dz-tag">FILE 1 · HIS</span>
+      <h3>Mẫu 01 xuất từ HIS</h3>
+      <div class="hint">Nhận cả 2 định dạng: BaoCao_01 (Mẫu 01/BH trình bày) hoặc BaoCao_MAU01_BH (file phẳng CHITIET_HS01BH) · Dùng cho đối chiếu, sửa lệch, xem/xuất BH01 và chuyển đổi</div>
+      <div class="fileinfo" id="fiHis"></div>
+      <input type="file" id="inHis" accept=".xlsx,.xls">
+    </div>
+    <div class="dropzone dz-bhxh" id="dzBhxh">
+      <span class="dz-tag">FILE 2 · BHXH</span>
+      <h3>TKDLXML – DS hồ sơ đã đề nghị thanh toán</h3>
+      <div class="hint">Kéo thả hoặc bấm để chọn file .xlsx tải từ cổng giám định</div>
+      <div class="fileinfo" id="fiBhxh"></div>
+      <input type="file" id="inBhxh" accept=".xlsx,.xls">
+    </div>
+  </div>
+
+  <div id="dqArea" style="display:none; margin-top:14px">
+    <div class="card">
+      <h2><span class="n">✓</span>Kiểm tra chất lượng dữ liệu File 1 <span style="font-weight:400;color:var(--muted);font-size:12.5px">(tự động chạy khi nạp file — phát hiện hồ sơ trùng và lỗi trước khi đẩy cổng)</span></h2>
+      <div class="summary-grid" id="dqGrid"></div>
+      <div class="scroll" id="dqDetailWrap" style="margin-top:12px"><table id="tblDQ"></table></div>
+    </div>
+  </div>
+
+  <div class="stepline" style="margin-top:16px"><span class="stepnum">2</span>Thao tác — đối chiếu đã tự chạy khi đủ 2 file, các nút dưới dùng khi cần chạy lại hoặc dùng tính năng khác</div>
+  <div class="actions">
+    <button id="btnRun" disabled title="So khớp từng hồ sơ giữa File 1 (HIS) và File 2 (BHXH)">Đối chiếu lại</button>
+    <button id="btnConvert" disabled title="Tạo file BaoCao_MAU01_BH để đẩy lên cổng BHXH (tự áp các phương án sửa đã chọn ở mục 4)">Chuyển đổi sang MAU01_BH (TT12)</button>
+    <button id="btnViewBH01" disabled title="Xem Mẫu số 01/BH ngay trên web và xuất Excel BH01 chuẩn TT12">Xem báo cáo BH01</button>
+    <button id="btnExport" title="Xuất kết quả đối chiếu ra Excel để lưu/báo cáo">Xuất báo cáo Excel</button>
+    <span id="status"></span>
+  </div>
+
+  <div id="bh01Area" style="display:none">
+    <div class="card">
+      <h2><span class="n">≣</span>Báo cáo Mẫu số 01/BH <span id="bh01Sub" style="font-weight:400;color:var(--muted);font-size:12.5px"></span></h2>
+      <div class="actions" style="margin:0 0 12px">
+        <button id="btnBH01Xlsx">Xuất Excel BH01</button>
+        <button id="btnBH01Print" class="btn-mini" title="In bản trình ký trực tiếp từ trình duyệt (khổ ngang)">🖨 In BH01</button>
+        <span class="note" id="bh01Note" style="margin:0"></span>
+      </div>
+      <div id="bh01Head"></div>
+      <div class="scroll" style="max-height:70vh; overflow:auto"><table id="tblBH01"></table></div>
+      <div class="bh01-sign">
+        <div><br><b>NGƯỜI LẬP BIỂU</b><br>(Ký, họ tên)</div>
+        <div><br><b>KẾ TOÁN TRƯỞNG</b><br>(Ký, họ tên)</div>
+        <div><i>Ngày ...... tháng ...... năm ......</i><br><b>THỦ TRƯỞNG ĐƠN VỊ</b><br>(Ký, họ tên, đóng dấu)</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="convertArea" style="display:none">
+    <div class="card">
+      <h2><span class="n">⇄</span>Chuyển đổi BaoCao_01 → BaoCao_MAU01_BH <span style="font-weight:400;color:var(--muted);font-size:12.5px">(định dạng CHITIET_HS01BH · Mẫu số 01/BH – TT 12/2026/TT-BTC)</span></h2>
+      <div class="summary-grid" id="cvGrid"></div>
+      <div class="scroll" style="margin-top:14px"><table id="tblConvert"></table></div>
+      <div class="note" id="cvNote"></div>
+    </div>
+  </div>
+
+  <div id="resultArea">
+    <div class="card">
+      <h2><span class="n">1</span>Tổng quan ghép hồ sơ <span style="font-weight:400;color:var(--muted);font-size:12.5px">(khóa: Mã thẻ + Ngày vào viện)</span></h2>
+      <div class="summary-grid" id="sumGrid"></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">2</span>Đối chiếu tổng số tiền toàn kỳ</h2>
+      <div class="scroll"><table id="tblTotals"></table></div>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">3</span>Kết quả đối chiếu từng trường</h2>
+      <div class="scroll"><table id="tblFields"></table></div>
+    </div>
+
+    <div class="card" id="cardDetail">
+      <h2><span class="n">4</span>Chi tiết hồ sơ có chênh lệch — chọn phương án sửa</h2>
+      <div class="scroll"><table id="tblDetail"></table></div>
+      <div class="actions" id="fixBar" style="display:none; margin:14px 0 4px">
+        <span style="font-size:12.5px;color:var(--muted)">Chọn nhanh:</span>
+        <button class="btn-mini" data-fixall="bhxh">Tất cả: sửa HIS theo BHXH</button>
+        <button class="btn-mini" data-fixall="his">Tất cả: sửa BHXH theo HIS</button>
+        <button class="btn-mini" data-fixall="skip">Tất cả: không sửa</button>
+        <button id="btnFixHis">Tải BaoCao_01 đã sửa</button>
+        <button id="btnFixBhxh">Tải TKDLXML đã sửa</button>
+        <button id="btnBH01Fixed">Xuất Excel BH01 đã sửa</button>
+      </div>
+      <div class="note">Chênh lệch họ tên chỉ khác vị trí dấu thanh (òa/oà, óa/oá…) được đánh dấu riêng — thường không bị giám định bắt lỗi.<br>
+      Phương án sửa: <b>Theo BHXH</b> → ghi giá trị BHXH vào file BaoCao_01; <b>Theo HIS</b> → ghi giá trị HIS vào file TKDLXML; <b>Nhập tay</b> → ghi giá trị nhập vào cả hai file. Khi sửa cột tiền, tool tự cân đối lại: Chi phí BHYT (3)=(4)+(5), Tổng chi (2)=(3)+(6)+(7) và tính lại dòng tổng từng Mục/phần A. Các sửa đổi cũng được áp dụng khi bấm "Chuyển đổi sang MAU01_BH". Lưu ý: file Excel tải về giữ nguyên dữ liệu nhưng có thể mất định dạng trang trí (màu, viền, phông chữ).</div>
+    </div>
+
+    <div class="card" id="cardOrphan" style="display:none">
+      <h2><span class="n">5</span>Hồ sơ chỉ có ở một bên</h2>
+      <div class="scroll"><table id="tblOrphan"></table></div>
+    </div>
+  </div>
+  </div><!-- /tabThang -->
+
+  <div id="tabQuy" style="display:none">
+  <div class="card" id="cardBh02">
+    <h2><span class="n">Q</span>Tổng hợp Mẫu số 02/BH theo quý <span style="font-weight:400;color:var(--muted);font-size:12.5px">(từ các file BaoCao_MAU01_BH tải trên cổng BHXH các tháng trong quý · TT 12/2026/TT-BTC)</span></h2>
+    <div class="drop-row">
+      <div class="dropzone dz-bhxh" id="dzBh02">
+        <span class="dz-tag">BH02 · CỔNG BHXH · NHIỀU FILE</span>
+        <h3>Các file Mẫu 01 của các tháng trong quý (tải từ cổng BHXH)</h3>
+        <div class="hint">Nhận file Mau01BH_&lt;mã&gt;_yyyymm.xlsx (cột "Loại KCB" chữ, mã hóa theo QĐ 824/QĐ-BYT) hoặc file BaoCao_MAU01_BH (cột MA_LOAI_KCB) · chọn nhiều file cùng lúc, chọn thêm để bổ sung</div>
+        <div class="fileinfo" id="fiBh02"></div>
+        <input type="file" id="inBh02" accept=".xlsx,.xls" multiple>
+      </div>
+      <div class="dropzone dz-his" id="dzBh02His">
+        <span class="dz-tag">TÙY CHỌN · HIS</span>
+        <h3>BaoCao_02 (Mẫu số 02/BH) xuất từ HIS</h3>
+        <div class="hint">Nạp thêm để đối chiếu số quyết toán quý của HIS với số tổng hợp từ cổng BHXH</div>
+        <div class="fileinfo" id="fiBh02His"></div>
+        <input type="file" id="inBh02His" accept=".xlsx,.xls">
+      </div>
+    </div>
+    <div class="actions">
+      <label style="font-size:12.5px;color:var(--muted)">Tên đơn vị:
+        <input id="bh02Ten" type="text" value="Bệnh viện Mắt Sài Gòn - Sông Hàn"
+          style="font:inherit;font-size:12.5px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;width:280px">
+      </label>
+      <button id="btnBh02" disabled>Tổng hợp BH02</button>
+      <button id="btnBh02Clear" class="btn-mini">Xóa danh sách file</button>
+    </div>
+    <div id="bh02Area" style="display:none">
+      <div id="bh02Head"></div>
+      <div class="scroll"><table id="tblBH02"></table></div>
+      <div id="bh02DeNghi" style="font-size:13px;margin-top:10px"></div>
+      <div id="bh02MonthsWrap">
+      <h2 style="margin-top:16px;font-size:14px;color:var(--navy)">Kiểm tra dữ liệu các tháng</h2>
+      <div class="scroll"><table id="tblBh02Months"></table></div>
+      <div class="note" id="bh02Note"></div>
+      </div>
+      <div id="bh02CmpWrap" style="display:none">
+        <h2 style="margin-top:16px;font-size:14px;color:var(--navy)">Đối chiếu BH02: HIS ↔ tổng hợp từ cổng BHXH</h2>
+        <div class="scroll"><table id="tblBh02Cmp"></table></div>
+        <div class="note" id="bh02CmpNote"></div>
+      </div>
+      <div class="actions" style="margin-top:12px">
+        <button id="btnBH02Xlsx">Xuất Excel BH02</button>
+        <button id="btnBH02Print" class="btn-mini" title="In bản trình ký trực tiếp từ trình duyệt (khổ ngang)">🖨 In BH02</button>
+        <button id="btnMau03" class="btn-mini" title="Tạo bản nháp Biên bản giám định (Mẫu 03/BH) dạng Word, điền sẵn số liệu quý">📄 Xuất Mẫu 03/BH (nháp Word)</button>
+      </div>
+      <div class="bh01-sign">
+        <div><br><b>NGƯỜI LẬP BIỂU</b><br>(Ký, họ tên)</div>
+        <div><br><b>KẾ TOÁN TRƯỞNG</b><br>(Ký, họ tên)</div>
+        <div><i>Ngày ...... tháng ...... năm ......</i><br><b>THỦ TRƯỞNG ĐƠN VỊ</b><br>(Ký, họ tên, đóng dấu)</div>
+      </div>
+    </div>
+  </div>
+  </div><!-- /tabQuy -->
+
+  <div id="tabHelp" style="display:none">
+    <div class="card help">
+      <h3>🎯 Tool này làm gì?</h3>
+      <div class="scroll"><table>
+        <tr><th>Tính năng</th><th>Cần file gì</th><th>Kết quả</th></tr>
+        <tr><td>Đối chiếu Mẫu 01 ↔ cổng BHXH</td><td>File 1 (HIS) + File 2 (TKDLXML)</td><td>Bảng lệch từng hồ sơ, từng trường; hồ sơ chỉ có một bên</td></tr>
+        <tr><td>Sửa trường lệch</td><td>Sau khi đối chiếu</td><td>File BaoCao_01 / TKDLXML đã sửa; BH01 đã sửa</td></tr>
+        <tr><td>Chuyển đổi MAU01_BH</td><td>Chỉ cần File 1</td><td>File BaoCao_MAU01_BH đẩy lên cổng (đúng TT12, tự áp sửa đổi)</td></tr>
+        <tr><td>Xem / xuất BH01</td><td>Chỉ cần File 1</td><td>Mẫu số 01/BH xem trên web + Excel chuẩn có kẻ viền</td></tr>
+        <tr><td>Tổng hợp BH02 quý</td><td>3 file Mau01BH các tháng (cổng)</td><td>Mẫu số 02/BH + đối chiếu với BaoCao_02 của HIS</td></tr>
+        <tr><td>Kiểm tra chất lượng dữ liệu</td><td>Tự chạy khi nạp File 1</td><td>Cảnh báo hồ sơ trùng/chồng lấn, ngày sai, thẻ sai cấu trúc, lệch cân đối tiền</td></tr>
+        <tr><td>In trình ký &amp; Mẫu 03/BH</td><td>Sau khi có BH01 / BH02</td><td>Nút 🖨 In (khổ ngang) và bản nháp Word Biên bản giám định điền sẵn số liệu</td></tr>
+      </table></div>
+
+      <h3>📋 Quy trình hằng tháng (tab "Đối chiếu tháng")</h3>
+      <ol>
+        <li><b>Xuất Mẫu 01 từ HIS</b> — nhận cả hai định dạng: <span class="b">BaoCao_01</span> (bảng trình bày) hoặc <span class="b">BaoCao_MAU01_BH</span> (file phẳng).</li>
+        <li><b>Tải file từ cổng giám định BHXH</b>: mục Thống kê dữ liệu XML → "DS hồ sơ đã đề nghị thanh toán" (TKDLXML).</li>
+        <li><b>Kéo 2 file vào 2 ô</b> — tool tự động đối chiếu ngay, không cần bấm gì.</li>
+        <li><b>Đọc kết quả</b>: mục 1 tổng quan ghép hồ sơ; mục 2 tổng tiền toàn kỳ; mục 3 thống kê theo trường; mục 4 chi tiết từng hồ sơ lệch; mục 5 hồ sơ chỉ có ở một bên (thường do chưa đẩy XML hoặc hồ sơ trùng).</li>
+        <li><b>Sửa lệch (mục 4)</b>: chọn phương án cho từng dòng rồi tải file đã sửa. Ý nghĩa:
+          <ul>
+            <li><span class="b">HIS ← theo BHXH</span>: ghi giá trị của cổng vào file HIS (dùng khi HIS sai — vd họ tên theo thẻ).</li>
+            <li><span class="b">BHXH ← theo HIS</span>: ghi giá trị HIS vào file TKDLXML (khi cổng sai — cần đẩy lại XML).</li>
+            <li><span class="b">Nhập tay</span>: gõ giá trị đúng, áp cho cả hai file.</li>
+            <li>Khi sửa cột tiền, tool tự cân đối lại: (3)=(4)+(5), (2)=(3)+(6)+(7) và tính lại dòng tổng.</li>
+            <li>Cột <b>"Xong"</b>: tick vào hồ sơ đã xử lý — được lưu trên máy, lần sau mở lại vẫn nhớ (hữu ích khi xử lý rải rác nhiều ngày).</li>
+          </ul></li>
+        <li><b>Tạo file gửi cổng</b>: bấm "Chuyển đổi sang MAU01_BH (TT12)" — file tải về đã áp mọi sửa đổi đã chọn, upload thẳng lên cổng.</li>
+      </ol>
+
+      <h3>📊 Quy trình hằng quý (tab "Tổng hợp quý BH02")</h3>
+      <ol>
+        <li>Tải 3 file <span class="b">Mau01BH_&lt;mã&gt;_yyyymm.xlsx</span> của 3 tháng trong quý từ cổng BHXH, kéo cả 3 vào ô bên trái.</li>
+        <li>(Nên làm) Xuất <span class="b">BaoCao_02</span> từ HIS, kéo vào ô bên phải để đối chiếu chéo.</li>
+        <li>Bấm <b>Tổng hợp BH02</b> — xem bảng quyết toán 4 mục, kiểm tra cảnh báo (thiếu tháng, trùng tháng, hồ sơ "Chưa đề nghị"…) và bảng đối chiếu HIS ↔ cổng (ô lệch tô đỏ).</li>
+        <li>Bấm <b>Xuất Excel BH02</b> — file đúng biểu mẫu Phụ lục I TT12, có số tiền bằng chữ, sẵn sàng trình ký.</li>
+      </ol>
+
+      <h3>⚙️ Quy tắc tool áp dụng</h3>
+      <ul>
+        <li>Ghép hồ sơ theo <b>Mã thẻ BHYT + thời điểm vào viện</b> (chính xác đến phút); sai số tiền cho phép ±0,5đ.</li>
+        <li>Mã loại KCB theo <b>QĐ 824/QĐ-BYT</b>; phân mục I–IV / 1–4 theo <b>TT 12/2026/TT-BTC</b> (Mục 1={01,06,07}, Mục 2={02,05,08}, Mục 3={04,09}, Mục 4={03}).</li>
+        <li>Giờ phút được <b>cắt giây</b> (không làm tròn) — khớp cách HIS sinh XML, tránh lệch 1 phút "Ngày vào nội trú" trên cổng.</li>
+        <li>Chênh lệch họ tên chỉ khác vị trí dấu (òa/oà…) được tách riêng — thường không bị giám định bắt lỗi.</li>
+        <li>Tiền trên BH02 làm tròn đến đồng theo TT12; so sánh với HIS cũng sau khi làm tròn.</li>
+      </ul>
+
+      <h3>🔒 An toàn dữ liệu</h3>
+      <ul>
+        <li>Mọi file Excel được xử lý <b>ngay trên trình duyệt của bạn</b> — không gửi lên bất kỳ máy chủ nào, kể cả khi mở tool qua link online.</li>
+        <li>Các file tải về (file đã sửa, BH01, BH02, MAU01_BH) nằm trong thư mục Downloads của máy.</li>
+      </ul>
+    </div>
+  </div>
+</main>
+<footer>Tool nội bộ phòng CNTT · So khớp theo Mã thẻ BHYT + thời điểm vào viện (đến phút) · Sai số tiền cho phép ±0,5 đ · <b id="appVer"></b></footer>
+
+<script>
+"use strict";
+let fileHis=null, fileBhxh=null, result=null;
+
+/* ---------- UI wiring ---------- */
+function wireDZ(dz, input, fi, setter){
+  dz.addEventListener('click', ()=>input.click());
+  input.addEventListener('change', e=>{ if(e.target.files[0]) setter(e.target.files[0]); });
+  dz.addEventListener('dragover', e=>{e.preventDefault(); dz.classList.add('dragover');});
+  dz.addEventListener('dragleave', ()=>dz.classList.remove('dragover'));
+  dz.addEventListener('drop', e=>{
+    e.preventDefault(); dz.classList.remove('dragover');
+    if(e.dataTransfer.files[0]) setter(e.dataTransfer.files[0]);
+  });
+}
+let autoNeeded=false; // đủ 2 file → tự chạy đối chiếu, không cần bấm nút
+function setHis(f){ fileHis=f; autoNeeded=true; showFile('fiHis','dzHis',f); check(); runDQ(); }
+function setBhxh(f){ fileBhxh=f; autoNeeded=true; showFile('fiBhxh','dzBhxh',f); check(); }
+
+/* ---------- Kiểm tra chất lượng dữ liệu File 1 (chạy tự động khi nạp) ---------- */
+async function runDQ(){
+  const area=document.getElementById('dqArea');
+  try{
+    const his=parseHis(await readWB(fileHis));
+    // 1) Hồ sơ trùng / chồng lấn thời gian điều trị theo mã thẻ
+    const byCard=new Map();
+    his.forEach(h=>{ const a=byCard.get(h.card); a?a.push(h):byCard.set(h.card,[h]); });
+    const dup=[];
+    byCard.forEach(list=>{
+      if(list.length<2) return;
+      for(let i=0;i<list.length;i++) for(let j=i+1;j<list.length;j++){
+        const a=list[i], b=list[j];
+        if(!a.din||!b.din) continue;
+        const aEnd=a.dout||a.din, bEnd=b.dout||b.din;
+        if(a.din<=bEnd&&b.din<=aEnd) dup.push([a,b]);
+      }
+    });
+    // 2) Pre-flight từng hồ sơ (bắt lỗi trước khi cổng/giám định bắt)
+    const rowErr=[];
+    his.forEach(h=>{
+      const e=[];
+      if(h.dout&&h.din&&h.dout<h.din) e.push('Ngày ra TRƯỚC ngày vào');
+      if(h.vnt&&(h.vnt<h.din||(h.dout&&h.vnt>h.dout))) e.push('Ngày vào nội trú ngoài khoảng vào–ra');
+      if(h.kcb==='03'&&!h.vnt) e.push('Nội trú nhưng thiếu Ngày vào nội trú');
+      if(h.vnt&&(h.kcb==='01'||h.kcb==='02')) e.push('Loại KCB ngoại trú nhưng CÓ Ngày vào nội trú — mâu thuẫn phân loại, cổng sẽ báo "đối chiếu lệch"');
+      if(!/^[A-Z]{2}\d{13}$/.test(h.card)) e.push('Mã thẻ không đúng cấu trúc 2 chữ + 13 số');
+      if(h.icd&&!/^[A-TV-Z]\d{2}(\.\d{1,2})?$/i.test(h.icd)) e.push('Mã ICD-10 bất thường: '+h.icd);
+      if(['tong','bhyt','bhtt','cct','tutra','vientro'].some(f=>(h[f]||0)<0)) e.push('Có số tiền âm');
+      if(Math.abs((h.tong||0)-((h.bhyt||0)+(h.vientro||0)+(h.tutra||0)))>0.5) e.push('Lệch cân đối: Tổng chi (2) ≠ (3)+(6)+(7)');
+      if(Math.abs((h.bhyt||0)-((h.bhtt||0)+(h.cct||0)))>0.5) e.push('Lệch cân đối: CP BHYT (3) ≠ (4)+(5)');
+      if(e.length) rowErr.push({h,e});
+    });
+    area.style.display='block';
+    document.getElementById('dqGrid').innerHTML=[
+      stat(his.length,'Hồ sơ trong file'),
+      stat(dup.length,'Cặp hồ sơ trùng/chồng lấn', dup.length?'err':'ok'),
+      stat(rowErr.length,'Hồ sơ có lỗi dữ liệu', rowErr.length?'err':'ok'),
+    ].join('');
+    const td=document.getElementById('tblDQ');
+    if(!dup.length&&!rowErr.length){
+      td.innerHTML='<tr><td style="color:var(--ok);font-weight:600">✓ Không phát hiện hồ sơ trùng hay lỗi dữ liệu — file sẵn sàng đối chiếu / đẩy cổng.</td></tr>';
+    }else{
+      const rows=['<tr><th>Loại</th><th>Mã thẻ</th><th>Họ tên</th><th>Chi tiết</th></tr>'];
+      dup.slice(0,30).forEach(([a,b])=>rows.push(
+        `<tr><td><span class="badge b-err">Trùng/chồng lấn</span></td><td>${esc(a.card)}</td><td>${esc(a.name)}</td>`+
+        `<td>Hồ sơ 1: ${fmtDT(a.din)} → ${fmtDT(a.dout)} (${fmtVND(a.tong)}đ) · Hồ sơ 2: ${fmtDT(b.din)} → ${fmtDT(b.dout)} (${fmtVND(b.tong)}đ) — kiểm tra trên HIS trước khi đẩy cổng!</td></tr>`));
+      rowErr.slice(0,30).forEach(({h,e})=>rows.push(
+        `<tr><td><span class="badge b-warn">Lỗi dữ liệu</span></td><td>${esc(h.card)}</td><td>${esc(h.name)}</td><td>${esc(e.join(' · '))} (vào ${fmtDT(h.din)})</td></tr>`));
+      const more=(dup.length>30?dup.length-30:0)+(rowErr.length>30?rowErr.length-30:0);
+      if(more) rows.push(`<tr><td colspan="4" style="color:var(--muted)">… và ${more} dòng khác.</td></tr>`);
+      td.innerHTML=rows.join('');
+    }
+  }catch(err){ area.style.display='none'; } // file lỗi định dạng sẽ được báo khi thao tác chính
+}
+function showFile(fiId,dzId,f){
+  const fi=document.getElementById(fiId);
+  fi.textContent='✓ '+f.name; fi.style.display='block';
+  document.getElementById(dzId).classList.add('loaded');
+}
+function check(){
+  const ready=!!(fileHis&&fileBhxh);
+  document.getElementById('btnRun').disabled = !ready;
+  document.getElementById('btnConvert').disabled = !fileHis;
+  document.getElementById('btnViewBH01').disabled = !fileHis;
+  if(ready&&autoNeeded){ autoNeeded=false; document.getElementById('btnRun').click(); }
+}
+/* ---------- Tabs ---------- */
+function showTab(id){
+  for(const t of ['tabThang','tabQuy','tabHelp']){
+    const e=document.getElementById(t); if(e) e.style.display = t===id?'block':'none';
+  }
+  document.querySelectorAll('#tabNav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===id));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+document.querySelectorAll('#tabNav button').forEach(b=>b.addEventListener('click', ()=>showTab(b.dataset.tab)));
+wireDZ(document.getElementById('dzHis'), document.getElementById('inHis'), 'fiHis', setHis);
+wireDZ(document.getElementById('dzBhxh'), document.getElementById('inBhxh'), 'fiBhxh', setBhxh);
+
+/* ---------- Helpers ---------- */
+const low = s => String(s??'').toLowerCase();
+const fmtVND = n => (n==null||isNaN(n)) ? '' : Math.round(n*100)/100 === Math.round(n) ? Math.round(n).toLocaleString('vi-VN') : n.toLocaleString('vi-VN',{maximumFractionDigits:2});
+function normName(s){
+  return String(s??'').normalize('NFC').toUpperCase().trim().replace(/\s+/g,' ');
+}
+function stripDiacritics(s){
+  return normName(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/Đ/g,'D');
+}
+function toDate(v){
+  if(v==null||v==='') return null;
+  if(v instanceof Date) return isNaN(v)?null:v;
+  if(typeof v==='number'){ // Excel serial: khử nhiễu số thực tới mili-giây rồi CẮT giây lẻ
+    // (không làm tròn: HIS sinh XML gửi cổng BHXH bằng cách cắt giây, nên 10:02:59.8 phải ra 10:02
+    //  — làm tròn thành 10:03 sẽ bị cổng báo "đối chiếu lệch" ngày vào nội trú)
+    const sec=Math.floor(Math.round((v-25569)*86400*1000)/1000);
+    const d=new Date(sec*1000);
+    return new Date(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate(),d.getUTCHours(),d.getUTCMinutes(),d.getUTCSeconds());
+  }
+  const s=String(v).trim();
+  let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if(m) return new Date(+m[3],+m[2]-1,+m[1],+(m[4]||0),+(m[5]||0),+(m[6]||0));
+  m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if(m) return new Date(+m[1],+m[2]-1,+m[3],+(m[4]||0),+(m[5]||0),+(m[6]||0));
+  return null;
+}
+const p2 = n => String(n).padStart(2,'0');
+const keyMin = d => d ? d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate())+p2(d.getHours())+p2(d.getMinutes()) : '';
+const fmtDT = d => d ? p2(d.getDate())+'/'+p2(d.getMonth()+1)+'/'+d.getFullYear()+' '+p2(d.getHours())+':'+p2(d.getMinutes()) : '';
+const fmtD  = d => d ? p2(d.getDate())+'/'+p2(d.getMonth()+1)+'/'+d.getFullYear() : '';
+const num = v => { const n=parseFloat(String(v??'').replace(/[, ]/g,'')); return isNaN(n)?null:n; };
+const sameMin = (a,b)=> keyMin(a)===keyMin(b);
+const sameDay = (a,b)=> (a&&b) ? (a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate()) : (!a&&!b);
+const moneyDiff = (a,b)=> Math.abs((a??0)-(b??0))>0.5;
+
+function readWB(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>{ try{ res(XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:false})); }catch(err){rej(err);} };
+    r.onerror=()=>rej(new Error('Không đọc được file '+file.name));
+    r.readAsArrayBuffer(file);
+  });
+}
+
+/* ---------- Parse File 1 từ HIS: Mẫu 01/BH trình bày HOẶC file phẳng BaoCao_MAU01_BH ---------- */
+// Chuỗi 12 số yyyyMMddHHmm (định dạng CHITIET_HS01BH) → Date
+function dt12(v){
+  const s=String(v??'').replace(/\.0$/,'').trim();
+  const m=s.match(/^(\d{4})(\d{2})(\d{2})(\d{2})?(\d{2})?$/);
+  return m ? new Date(+m[1],+m[2]-1,+m[3],+(m[4]||0),+(m[5]||0)) : null;
+}
+function parseHisFlat(rows, hIdx, r0, c0){
+  const H=rows[hIdx].map(c=>String(c??'').toUpperCase().trim());
+  const ix=n=>H.indexOf(n);
+  const col={stt:ix('STT'), name:ix('HO_TEN'), dob:ix('NGAY_SINH'), sex:ix('GIOI_TINH'), card:ix('MA_THE_BHYT'),
+    icd:ix('MA_BENH_CHINH'), din:ix('NGAY_VAO'), vnt:ix('NGAY_VAO_NOI_TRU'), dout:ix('NGAY_RA'),
+    songay:ix('SO_NGAY_DTRI'), kcb:ix('MA_LOAI_KCB'), tong:ix('T_TONGCHI_BV'), bhyt:ix('T_TONGCHI_BH'),
+    bhtt:ix('T_BHTT'), cct:ix('T_BNCCT'), tutra:ix('T_BNTT'), vientro:ix('T_NGUONKHAC'),
+    ma:ix('MA_CSKCB'), nam:ix('NAM_QT'), thang:ix('THANG_QT')};
+  if(col.card<0||col.din<0||col.tong<0) throw new Error('File 1 (BaoCao_MAU01_BH): thiếu cột MA_THE_BHYT / NGAY_VAO / T_TONGCHI_BV.');
+  // gom mã lẻ về mã đại diện từng Mục (TT12): 06,07→01; 05,08→02; 09→04
+  const rep={'06':'01','07':'01','05':'02','08':'02','09':'04'};
+  const out=[];
+  const meta={thang:null, nam:null, quy:null, macskcb:'', ten:''};
+  for(let i=hIdx+1;i<rows.length;i++){
+    const r=rows[i]; if(!r) continue;
+    const card=String(r[col.card]??'').trim();
+    if(card.length<10) continue;
+    const sx=String(r[col.sex]??'').trim();
+    let k=String(r[col.kcb]??'').trim().padStart(2,'0'); k=rep[k]||k;
+    out.push({
+      stt:num(r[col.stt])||out.length+1, name:String(r[col.name]??'').trim(),
+      dob:dt12(r[col.dob]), sex: sx==='1'?'Nam':sx==='2'?'Nữ':sx,
+      card, icd:String(r[col.icd]??'').trim(),
+      din:dt12(r[col.din]), vnt:dt12(r[col.vnt]), dout:dt12(r[col.dout]),
+      songay:num(r[col.songay]),
+      tong:num(r[col.tong]), bhyt:num(r[col.bhyt]), bhtt:num(r[col.bhtt]),
+      cct:num(r[col.cct]), vientro:num(r[col.vientro]), tutra:num(r[col.tutra]),
+      kcb:k, row:r0+i
+    });
+    if(meta.thang==null){
+      meta.thang=num(r[col.thang]); meta.nam=num(r[col.nam]);
+      if(meta.thang) meta.quy=Math.ceil(meta.thang/3);
+      meta.macskcb=String(r[col.ma]??'').trim().replace(/\.0$/,'');
+    }
+  }
+  if(!out.length) throw new Error('File 1 (BaoCao_MAU01_BH): không trích được hồ sơ nào.');
+  const tenInp=document.getElementById('bh02Ten');
+  meta.ten=(tenInp&&tenInp.value)?tenInp.value.trim():'';
+  out.meta=meta; out.cols=col; out.c0=c0; out.secRows={}; out.partRows=[]; out.flat=true;
+  return out;
+}
+function parseHis(wb){
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+  const rng=XLSX.utils.decode_range(ws['!ref']||'A1'); // rows[i] ↔ dòng sheet rng.s.r+i
+  const r0=rng.s.r, c0=rng.s.c;
+  // Định dạng phẳng CHITIET_HS01BH (HIS xuất kiểu BaoCao_MAU01_BH)?
+  for(let i=0;i<Math.min(rows.length,5);i++){
+    if(rows[i]&&rows[i].some(c=>String(c??'').toUpperCase().trim()==='MA_THE_BHYT'))
+      return parseHisFlat(rows, i, r0, c0);
+  }
+  // find header row containing "mã thẻ"
+  let hIdx=-1;
+  for(let i=0;i<Math.min(rows.length,30);i++){
+    if(rows[i]&&rows[i].some(c=>low(c).includes('mã thẻ'))){hIdx=i;break;}
+  }
+  if(hIdx<0) throw new Error('File 1 không đúng định dạng: cần Mẫu 01/BH (tiêu đề "Mã thẻ bảo hiểm y tế") hoặc file phẳng BaoCao_MAU01_BH (cột MA_THE_BHYT).');
+  const H=rows[hIdx].map(low);
+  const find=(...subs)=>{ for(let j=0;j<H.length;j++){ if(subs.every(s=>H[j].includes(s))) return j; } return -1; };
+  const col={
+    name:find('họ và tên'), dob:find('ngày sinh'), sex:find('giới tính'),
+    card:find('mã thẻ'), icd:find('mã bệnh'),
+    din:find('ngày vào viện'), vnt:find('ngày vào nội trú'), dout:find('ngày ra viện'),
+    songay:find('điều trị thực tế'),
+    tong:find('tổng chi'), bhyt:find('bảo hiểm y tế','chi phí khám'),
+    bhtt:find('đề nghị quỹ'), cct:find('cùng chi trả'),
+    vientro:find('viện trợ'), tutra:find('tự trả')
+  };
+  // fallback: layout chuẩn Mẫu 01/BH
+  const fb={name:1,dob:3,sex:4,card:5,icd:7,din:8,vnt:10,dout:11,songay:12,tong:14,bhyt:15,bhtt:16,cct:18,vientro:19,tutra:20};
+  for(const k in fb) if(col[k]<0) col[k]=fb[k];
+  // Mục I→IV theo Hướng dẫn lập Mẫu số 01/BH (TT 12/2026/TT-BTC):
+  // I. KCB ngoại trú→01; II. Điều trị ngoại trú→02; III. Điều trị ban ngày→04; IV. Điều trị nội trú→03
+  const secMap={'I':'01','II':'02','III':'04','IV':'03'};
+  let sec='01';
+  const out=[], secRows={}, partRows=[];
+  for(let i=hIdx+1;i<rows.length;i++){
+    const r=rows[i]; if(!r) continue;
+    const stt=r[0], card=r[col.card];
+    const aRaw=String(stt??'').trim().toUpperCase();
+    if(secMap[aRaw]){ sec=secMap[aRaw]; secRows[sec]=r0+i; continue; }
+    if(/^[A-Z]\./.test(aRaw)){ partRows.push(r0+i); continue; }
+    if(!(Number.isInteger(+stt)&&+stt>0)) continue;
+    if(typeof card!=='string'||card.trim().length<10) continue;
+    out.push({
+      stt:+stt, name:String(r[col.name]??'').trim(), dob:toDate(r[col.dob]),
+      sex:String(r[col.sex]??'').trim(), card:card.trim(), icd:String(r[col.icd]??'').trim(),
+      din:toDate(r[col.din]), vnt:toDate(r[col.vnt]), dout:toDate(r[col.dout]),
+      songay:num(r[col.songay]),
+      tong:num(r[col.tong]), bhyt:num(r[col.bhyt]), bhtt:num(r[col.bhtt]),
+      cct:num(r[col.cct]), vientro:num(r[col.vientro]), tutra:num(r[col.tutra]),
+      kcb:sec, row:r0+i
+    });
+  }
+  if(!out.length) throw new Error('File 1: không trích được hồ sơ bệnh nhân nào.');
+  out.cols=col; out.c0=c0; out.secRows=secRows; out.partRows=partRows;
+  // Thông tin chung phía trên bảng: kỳ báo cáo + mã đơn vị
+  const meta={thang:null, nam:null, quy:null, macskcb:'', ten:''};
+  const nextVal=(r,j0)=>{ for(let j=j0;j<r.length;j++){ const v=String(r[j]??'').trim(); if(v) return v; } return ''; };
+  for(let i=0;i<hIdx;i++){
+    const r=rows[i]; if(!r) continue;
+    const line=r.map(c=>String(c??'')).join(' ');
+    let m=line.match(/tháng\s*(\d{1,2})/i); if(m&&meta.thang==null) meta.thang=+m[1];
+    m=line.match(/quý\s*(\d)/i); if(m&&meta.quy==null) meta.quy=+m[1];
+    m=line.match(/năm\s*(\d{4})/i); if(m&&meta.nam==null) meta.nam=+m[1];
+    const jMa=r.findIndex(c=>low(c).includes('mã đơn vị'));
+    if(jMa>=0&&!meta.macskcb) meta.macskcb=nextVal(r,jMa+1).replace(/\.0$/,'');
+    const jTen=r.findIndex(c=>low(c).includes('tên đơn vị'));
+    if(jTen>=0&&!meta.ten) meta.ten=nextVal(r,jTen+1);
+  }
+  out.meta=meta;
+  return out;
+}
+
+/* ---------- Parse TKDLXML (BHXH) ---------- */
+function parseBhxh(wb){
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+  const rng=XLSX.utils.decode_range(ws['!ref']||'A1');
+  const r0=rng.s.r, c0=rng.s.c;
+  let hIdx=-1;
+  for(let i=0;i<Math.min(rows.length,10);i++){
+    if(rows[i]&&rows[i].some(c=>low(c)==='mã thẻ')&&rows[i].some(c=>low(c).includes('họ tên'))){hIdx=i;break;}
+  }
+  if(hIdx<0) throw new Error('File 2 không đúng định dạng TKDLXML: không tìm thấy tiêu đề "Mã thẻ", "Họ tên".');
+  const H=rows[hIdx].map(low);
+  const find=name=>{ const j=H.indexOf(low(name)); return j>=0?j:H.findIndex(h=>h.includes(low(name))); };
+  const col={
+    card:find('Mã thẻ'), mabn:find('Mã BN'), name:find('Họ tên'), dob:find('Ngày sinh'),
+    sex:find('Giới tính'), din:find('Ngày vào'), dout:find('Ngày ra'), icd:find('Chẩn đoán'),
+    tong:find('Tổng chi'), bntt:find('Bệnh nhân TT'), cct:find('Bệnh nhân CCT'), bhtt:find('Bảo hiểm TT'),
+    tthai:find('Trạng thái HS'), maloi:find('Mã lỗi')
+  };
+  const out=[];
+  for(let i=hIdx+1;i<rows.length;i++){
+    const r=rows[i]; if(!r) continue;
+    const card=r[col.card];
+    if(typeof card!=='string'||card.trim().length<10) continue;
+    out.push({
+      card:card.trim(), mabn:String(r[col.mabn]??'').trim(), name:String(r[col.name]??'').trim(),
+      dob:toDate(r[col.dob]), sex:String(r[col.sex]??'').trim(),
+      din:toDate(r[col.din]), dout:toDate(r[col.dout]), icd:String(r[col.icd]??'').trim(),
+      tong:num(r[col.tong]), bntt:num(r[col.bntt]), cct:num(r[col.cct]), bhtt:num(r[col.bhtt]),
+      tthai:String(r[col.tthai]??'').trim(), maloi:String(r[col.maloi]??'').trim(),
+      row:r0+i
+    });
+  }
+  if(!out.length) throw new Error('File 2: không trích được hồ sơ nào.');
+  out.cols=col; out.c0=c0;
+  return out;
+}
+
+/* ---------- Reconcile ---------- */
+function reconcile(his,bhxh){
+  const mapB=new Map();
+  bhxh.forEach(r=>mapB.set(r.card+'|'+keyMin(r.din), r));
+  const matched=[], onlyHis=[], usedKeys=new Set();
+  his.forEach(h=>{
+    const k=h.card+'|'+keyMin(h.din);
+    if(mapB.has(k)&&!usedKeys.has(k)){ matched.push({h, b:mapB.get(k)}); usedKeys.add(k); }
+    else onlyHis.push(h);
+  });
+  const onlyBhxh=bhxh.filter(b=>!usedKeys.has(b.card+'|'+keyMin(b.din)));
+
+  const fieldDefs=[
+    {id:'name', label:'Họ tên',        test:p=>{
+        if(normName(p.h.name)===normName(p.b.name)) return null;
+        return stripDiacritics(p.h.name)===stripDiacritics(p.b.name) ? 'tone' : 'diff';
+      }, vHis:p=>p.h.name, vBhxh:p=>p.b.name},
+    {id:'dob',  label:'Ngày sinh',     test:p=>sameDay(p.h.dob,p.b.dob)?null:'diff', vHis:p=>fmtD(p.h.dob), vBhxh:p=>fmtD(p.b.dob)},
+    {id:'sex',  label:'Giới tính',     test:p=>normName(p.h.sex)===normName(p.b.sex)?null:'diff', vHis:p=>p.h.sex, vBhxh:p=>p.b.sex},
+    {id:'icd',  label:'Chẩn đoán (ICD)',test:p=>p.h.icd===p.b.icd?null:'diff', vHis:p=>p.h.icd, vBhxh:p=>p.b.icd},
+    {id:'dout', label:'Ngày ra',       test:p=>sameMin(p.h.dout,p.b.dout)?null:'diff', vHis:p=>fmtDT(p.h.dout), vBhxh:p=>fmtDT(p.b.dout)},
+    {id:'tong', label:'Tổng chi',      test:p=>moneyDiff(p.h.tong,p.b.tong)?'diff':null, vHis:p=>fmtVND(p.h.tong), vBhxh:p=>fmtVND(p.b.tong), money:1},
+    {id:'bhtt', label:'BHYT thanh toán',test:p=>moneyDiff(p.h.bhtt,p.b.bhtt)?'diff':null, vHis:p=>fmtVND(p.h.bhtt), vBhxh:p=>fmtVND(p.b.bhtt), money:1},
+    {id:'cct',  label:'Cùng chi trả',  test:p=>moneyDiff(p.h.cct,p.b.cct)?'diff':null, vHis:p=>fmtVND(p.h.cct), vBhxh:p=>fmtVND(p.b.cct), money:1},
+    {id:'tutra',label:'BN tự trả',     test:p=>moneyDiff(p.h.tutra,p.b.bntt)?'diff':null, vHis:p=>fmtVND(p.h.tutra), vBhxh:p=>fmtVND(p.b.bntt), money:1},
+  ];
+
+  const fieldStats=fieldDefs.map(f=>({...f, count:0, toneOnly:0}));
+  const detail=[];
+  matched.forEach(p=>{
+    const issues=[];
+    fieldStats.forEach(f=>{
+      const r=f.test(p);
+      if(r){ f.count++; if(r==='tone') f.toneOnly++;
+        issues.push({id:f.id, field:f.label, his:f.vHis(p), bhxh:f.vBhxh(p), tone:r==='tone'});
+      }
+    });
+    if(issues.length) detail.push({p, issues});
+  });
+
+  const totals=[
+    {label:'Tổng chi KCB',        his:sum(matched,p=>p.h.tong),  bhxh:sum(matched,p=>p.b.tong)},
+    {label:'Đề nghị quỹ BHYT TT', his:sum(matched,p=>p.h.bhtt),  bhxh:sum(matched,p=>p.b.bhtt)},
+    {label:'Người bệnh cùng chi trả', his:sum(matched,p=>p.h.cct), bhxh:sum(matched,p=>p.b.cct)},
+    {label:'Người bệnh tự trả',   his:sum(matched,p=>p.h.tutra), bhxh:sum(matched,p=>p.b.bntt)},
+  ];
+  return {matched, onlyHis, onlyBhxh, fieldStats, detail, totals, nHis:his.length, nBhxh:bhxh.length};
+}
+const sum=(arr,fn)=>arr.reduce((a,x)=>a+(fn(x)||0),0);
+
+/* ---------- Render ---------- */
+function render(r){
+  document.getElementById('resultArea').style.display='block';
+  const realDiffs=r.detail.filter(d=>d.issues.some(i=>!i.tone)).length;
+  const toneOnly=r.detail.length-realDiffs;
+  const sg=document.getElementById('sumGrid');
+  sg.innerHTML=[
+    stat(r.nHis,'Hồ sơ file HIS'),
+    stat(r.nBhxh,'Hồ sơ file BHXH'),
+    stat(r.matched.length,'Ghép khớp được', r.matched.length===r.nHis&&r.matched.length===r.nBhxh?'ok':'warn'),
+    stat(r.onlyHis.length,'Chỉ có ở HIS', r.onlyHis.length?'err':'ok'),
+    stat(r.onlyBhxh.length,'Chỉ có ở BHXH', r.onlyBhxh.length?'err':'ok'),
+    stat(realDiffs,'HS lệch nội dung', realDiffs?'err':'ok'),
+    stat(toneOnly,'HS chỉ lệch dấu tên', toneOnly?'warn':'ok'),
+  ].join('');
+
+  const tt=document.getElementById('tblTotals');
+  tt.innerHTML='<tr><th>Chỉ tiêu</th><th>HIS (đ)</th><th>BHXH (đ)</th><th>Chênh lệch (đ)</th><th></th></tr>'+
+    r.totals.map(t=>{
+      const d=t.his-t.bhxh, ok=Math.abs(d)<=0.5;
+      return `<tr><td>${t.label}</td><td class="num">${fmtVND(t.his)}</td><td class="num">${fmtVND(t.bhxh)}</td><td class="num">${ok?'0':fmtVND(d)}</td><td class="badge-cell">${ok?'<span class="badge b-ok">Khớp</span>':'<span class="badge b-err">Lệch</span>'}</td></tr>`;
+    }).join('');
+
+  const tf=document.getElementById('tblFields');
+  tf.innerHTML='<tr><th>Trường dữ liệu</th><th>Số HS lệch</th><th>Trong đó chỉ lệch dấu</th><th>Kết quả</th></tr>'+
+    r.fieldStats.map(f=>{
+      const real=f.count-f.toneOnly;
+      const badge = f.count===0 ? '<span class="badge b-ok">Khớp 100%</span>'
+        : real===0 ? '<span class="badge b-warn">Chỉ lệch dấu</span>'
+        : '<span class="badge b-err">Có lệch</span>';
+      return `<tr><td>${f.label}</td><td class="num">${f.count}</td><td class="num">${f.toneOnly||''}</td><td>${badge}</td></tr>`;
+    }).join('');
+
+  const cd=document.getElementById('cardDetail'), td=document.getElementById('tblDetail');
+  if(r.detail.length){
+    cd.style.display='block';
+    const doneSet=loadDone();
+    const nDone=r.detail.filter(d=>doneSet[d.p.h.card+'|'+keyMin(d.p.h.din)]).length;
+    td.innerHTML=`<tr><th title="Đánh dấu hồ sơ đã xử lý — lưu trên máy, lần sau mở lại vẫn nhớ">Xong (${nDone}/${r.detail.length})</th><th>#</th><th>Mã thẻ</th><th>Họ tên (HIS)</th><th>Ngày vào</th><th>Trường lệch</th><th>Giá trị HIS</th><th>Giá trị BHXH</th><th>Loại</th><th>Phương án sửa</th></tr>`+
+      r.detail.flatMap((d,i)=>d.issues.map((is,j)=>{
+        const gkey=d.p.h.card+'|'+keyMin(d.p.h.din);
+        const key=esc(gkey);
+        const isDone=!!doneSet[gkey];
+        const fixCell=`<td><select class="fixsel" data-k="${key}" data-f="${is.id}">`+
+          `<option value="skip">Không sửa</option>`+
+          `<option value="bhxh">HIS ← theo BHXH</option>`+
+          `<option value="his">BHXH ← theo HIS</option>`+
+          `<option value="custom">Nhập tay (cả 2)</option>`+
+          `</select><input class="fixinp" placeholder="Giá trị đúng…" value="${esc(is.bhxh)}"></td>`;
+        return `<tr data-g="${key}"${isDone?' class="done"':''}>${j===0?`<td class="chkcell" rowspan="${d.issues.length}"><input type="checkbox" class="donechk" data-k="${key}"${isDone?' checked':''}></td><td rowspan="${d.issues.length}">${i+1}</td><td rowspan="${d.issues.length}">${d.p.h.card}</td><td rowspan="${d.issues.length}">${esc(d.p.h.name)}</td><td rowspan="${d.issues.length}">${fmtDT(d.p.h.din)}</td>`:''}<td>${is.field}</td><td>${esc(is.his)}</td><td>${esc(is.bhxh)}</td><td>${is.tone?'<span class="badge b-warn">Lệch dấu</span>':'<span class="badge b-err">Lệch nội dung</span>'}</td>${fixCell}</tr>`;
+      })).join('');
+    document.getElementById('fixBar').style.display='flex';
+  } else {
+    cd.style.display='block';
+    td.innerHTML='<tr><td style="color:var(--ok);font-weight:600">✓ Không có hồ sơ nào chênh lệch — toàn bộ các trường đối chiếu đều khớp.</td></tr>';
+    document.getElementById('fixBar').style.display='none';
+  }
+
+  const co=document.getElementById('cardOrphan'), to=document.getElementById('tblOrphan');
+  if(r.onlyHis.length||r.onlyBhxh.length){
+    co.style.display='block';
+    to.innerHTML='<tr><th>Nguồn</th><th>Mã thẻ</th><th>Họ tên</th><th>Ngày vào</th><th>Tổng chi (đ)</th></tr>'+
+      r.onlyHis.map(h=>`<tr><td><span class="badge b-err">Chỉ ở HIS</span></td><td>${h.card}</td><td>${esc(h.name)}</td><td>${fmtDT(h.din)}</td><td class="num">${fmtVND(h.tong)}</td></tr>`).join('')+
+      r.onlyBhxh.map(b=>`<tr><td><span class="badge b-err">Chỉ ở BHXH</span></td><td>${b.card}</td><td>${esc(b.name)}</td><td>${fmtDT(b.din)}</td><td class="num">${fmtVND(b.tong)}</td></tr>`).join('');
+  } else co.style.display='none';
+
+  document.getElementById('btnExport').style.display='inline-block';
+}
+const stat=(v,l,cls='')=>`<div class="stat ${cls}"><div class="v">${v.toLocaleString('vi-VN')}</div><div class="l">${l}</div></div>`;
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+/* ---------- Export ---------- */
+function exportXlsx(r){
+  const wb=XLSX.utils.book_new();
+  const now=new Date();
+  const sh1=[['BÁO CÁO ĐỐI CHIẾU DỮ LIỆU MAU01 (HIS) – TKDLXML (BHXH)'],
+    ['Đơn vị: Bệnh viện Mắt Sài Gòn – Sông Hàn (48211)'],
+    ['Ngày đối chiếu:', fmtDT(now)],[],
+    ['Chỉ tiêu','Giá trị'],
+    ['Hồ sơ file HIS', r.nHis],['Hồ sơ file BHXH', r.nBhxh],['Ghép khớp', r.matched.length],
+    ['Chỉ có ở HIS', r.onlyHis.length],['Chỉ có ở BHXH', r.onlyBhxh.length],[],
+    ['Chỉ tiêu tổng tiền','HIS (đ)','BHXH (đ)','Chênh lệch (đ)'],
+    ...r.totals.map(t=>[t.label,t.his,t.bhxh,t.his-t.bhxh]),[],
+    ['Trường dữ liệu','Số HS lệch','Chỉ lệch dấu'],
+    ...r.fieldStats.map(f=>[f.label,f.count,f.toneOnly])];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sh1), 'TongHop');
+
+  const fixes=collectFixes();
+  const sh2=[['STT','Mã thẻ','Họ tên (HIS)','Ngày vào','Trường lệch','Giá trị HIS','Giá trị BHXH','Phân loại','Phương án sửa']];
+  r.detail.forEach((d,i)=>d.issues.forEach(is=>{
+    const fx=(fixes[pairKey(d.p)]||{})[is.id];
+    const fixLabel=fx ? FIX_LABEL[fx.choice]+(fx.choice==='custom'?': '+fx.custom:'') : 'Không sửa';
+    sh2.push([i+1,d.p.h.card,d.p.h.name,fmtDT(d.p.h.din),is.field,is.his,is.bhxh,is.tone?'Chỉ lệch vị trí dấu':'Lệch nội dung',fixLabel]);
+  }));
+  if(sh2.length===1) sh2.push(['','Không có hồ sơ chênh lệch']);
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sh2), 'ChiTietLech');
+
+  const sh3=[['Nguồn','Mã thẻ','Họ tên','Ngày vào','Ngày ra','Tổng chi']];
+  r.onlyHis.forEach(h=>sh3.push(['Chỉ ở HIS',h.card,h.name,fmtDT(h.din),fmtDT(h.dout),h.tong]));
+  r.onlyBhxh.forEach(b=>sh3.push(['Chỉ ở BHXH',b.card,b.name,fmtDT(b.din),fmtDT(b.dout),b.tong]));
+  if(sh3.length===1) sh3.push(['','Không có']);
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sh3), 'HoSoMotBen');
+
+  XLSX.writeFile(wb, `DoiChieu_MAU01_TKDLXML_${now.getFullYear()}${p2(now.getMonth()+1)}${p2(now.getDate())}.xlsx`);
+}
+
+/* ---------- Chuyển đổi BaoCao_01 → BaoCao_MAU01_BH (CHITIET_HS01BH, TT 12/2026/TT-BTC) ---------- */
+const fmt12 = d => d ? ''+d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate())+p2(d.getHours())+p2(d.getMinutes()) : '';
+function sexCode(s){
+  const t=stripDiacritics(s);
+  return t==='NAM'?1 : t==='NU'?2 : 3; // theo chuẩn dữ liệu: 1 Nam, 2 Nữ, 3 Chưa xác định
+}
+const KCB_LABEL={'01':'I. Khám bệnh, chữa bệnh ngoại trú','02':'II. Điều trị ngoại trú','04':'III. Điều trị ban ngày','03':'IV. Điều trị nội trú'};
+
+function buildMau01BH(his){
+  const meta=his.meta||{thang:null,nam:null,macskcb:''};
+  const aoa=[
+    ['DS_CHITIET>CHITIET_HS01BH'],
+    ['STT','HO_TEN','NGAY_SINH','GIOI_TINH','MA_THE_BHYT','MA_BENH_CHINH','NGAY_VAO','NGAY_VAO_NOI_TRU','NGAY_RA','SO_NGAY_DTRI','MA_LOAI_KCB','T_TONGCHI_BV','T_TONGCHI_BH','T_BHTT','T_BNCCT','T_BNTT','T_NGUONKHAC','MA_CSKCB','NAM_QT','THANG_QT']
+  ];
+  const warn=[], byKcb={};
+  his.forEach((h,i)=>{
+    const bv=h.tong??0, bh=h.bhyt??0, tt=h.bhtt??0, cct=h.cct??0, bntt=h.tutra??0, nk=h.vientro??0;
+    // Ràng buộc TT12: cột (2)=(3+6+7); cột (3)=(4+5)
+    const bad=[];
+    if(Math.abs(bv-(bh+nk+bntt))>0.5) bad.push('T_TONGCHI_BV ≠ T_TONGCHI_BH + T_NGUONKHAC + T_BNTT');
+    if(Math.abs(bh-(tt+cct))>0.5) bad.push('T_TONGCHI_BH ≠ T_BHTT + T_BNCCT');
+    if(bad.length) warn.push({stt:i+1, name:h.name, card:h.card, msg:bad.join('; ')});
+    const g=byKcb[h.kcb]||(byKcb[h.kcb]={n:0,tong:0,bhtt:0});
+    g.n++; g.tong+=bv; g.bhtt+=tt;
+    aoa.push([
+      i+1, h.name, fmt12(h.dob), sexCode(h.sex), h.card, h.icd,
+      fmt12(h.din), fmt12(h.vnt), fmt12(h.dout), h.songay??0, h.kcb,
+      bv, bh, tt, cct, bntt, nk,
+      String(meta.macskcb||''), meta.nam??'', meta.thang??''
+    ]);
+  });
+  return {aoa, warn, byKcb, meta, n:his.length};
+}
+
+function renderConvert(cv){
+  document.getElementById('convertArea').style.display='block';
+  const ky=(cv.meta.thang&&cv.meta.nam)?`${p2(cv.meta.thang)}/${cv.meta.nam}`:'?';
+  document.getElementById('cvGrid').innerHTML=[
+    stat(cv.n,'Hồ sơ chuyển đổi'),
+    `<div class="stat"><div class="v">${ky}</div><div class="l">Kỳ báo cáo (THANG_QT/NAM_QT)</div></div>`,
+    `<div class="stat"><div class="v">${esc(cv.meta.macskcb||'?')}</div><div class="l">MA_CSKCB</div></div>`,
+    stat(cv.warn.length,'Dòng lệch cân đối tiền', cv.warn.length?'warn':'ok'),
+  ].join('');
+  const rows=['01','02','04','03'].filter(k=>cv.byKcb[k]).map(k=>{
+    const g=cv.byKcb[k];
+    return `<tr><td>${KCB_LABEL[k]}</td><td>${k}</td><td class="num">${g.n.toLocaleString('vi-VN')}</td><td class="num">${fmtVND(g.tong)}</td><td class="num">${fmtVND(g.bhtt)}</td></tr>`;
+  }).join('');
+  document.getElementById('tblConvert').innerHTML=
+    '<tr><th>Mục (Mẫu 01/BH)</th><th>MA_LOAI_KCB</th><th>Số hồ sơ</th><th>Tổng chi (T_TONGCHI_BV)</th><th>Đề nghị quỹ BHYT (T_BHTT)</th></tr>'+rows;
+  const nt=document.getElementById('cvNote');
+  if(cv.warn.length){
+    nt.innerHTML='⚠ Các dòng sau không thỏa ràng buộc cân đối của TT 12/2026/TT-BTC (vẫn được xuất, cần kiểm tra lại trên HIS):<br>'+
+      cv.warn.slice(0,10).map(w=>`&nbsp;&nbsp;· STT ${w.stt} — ${esc(w.name)} (${esc(w.card)}): ${esc(w.msg)}`).join('<br>')+
+      (cv.warn.length>10?`<br>&nbsp;&nbsp;… và ${cv.warn.length-10} dòng khác.`:'');
+  } else {
+    nt.textContent='✓ Toàn bộ hồ sơ thỏa ràng buộc cân đối tiền: (2)=(3+6+7) và (3)=(4+5). File đã được tải về máy.';
+  }
+}
+
+function exportMau01BH(cv){
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(cv.aoa), 'BaoCao_MAU01_BH');
+  const ky=(cv.meta.thang&&cv.meta.nam)?`_${cv.meta.nam}${p2(cv.meta.thang)}`:'';
+  XLSX.writeFile(wb, `BaoCao_MAU01_BH_${cv.meta.macskcb||'CSKCB'}${ky}.xlsx`);
+}
+
+document.getElementById('btnConvert').addEventListener('click', async ()=>{
+  const st=document.getElementById('status');
+  st.className=''; st.textContent='Đang chuyển đổi sang định dạng MAU01_BH…';
+  const btn=document.getElementById('btnConvert'); btn.disabled=true;
+  try{
+    const wbH=await readWB(fileHis);
+    const his=parseHis(wbH);
+    const fx=applyFixesToHis(his); // áp các phương án sửa đã chọn ở mục 4 (nếu có)
+    const cv=buildMau01BH(his);
+    renderConvert(cv);
+    exportMau01BH(cv);
+    st.textContent=`Đã chuyển đổi ${cv.n} hồ sơ${fx.n?` (áp dụng ${fx.n} sửa đổi từ kết quả đối chiếu)`:''} và tải file BaoCao_MAU01_BH về máy.`;
+  }catch(err){
+    st.className='err'; st.textContent='Lỗi chuyển đổi: '+err.message;
+  }finally{
+    btn.disabled=false;
+  }
+});
+
+/* ---------- Sửa các trường lệch & xuất file đã sửa ---------- */
+const FIX_FIELDS={
+  name:{t:'s'}, dob:{t:'d', z:'dd/mm/yyyy'}, sex:{t:'s'}, icd:{t:'s'},
+  dout:{t:'d', z:'dd/mm/yyyy hh:mm'},
+  tong:{t:'n'}, bhtt:{t:'n'}, cct:{t:'n'}, tutra:{t:'n'}, bhyt:{t:'n'}
+};
+const FIX_LABEL={skip:'Không sửa', bhxh:'Sửa HIS theo BHXH', his:'Sửa BHXH theo HIS', custom:'Nhập tay'};
+const bhxhField=f=>f==='tutra'?'bntt':f; // "BN tự trả" bên BHXH là cột Bệnh nhân TT
+const pairKey=p=>p.h.card+'|'+keyMin(p.h.din);
+
+function parseCustom(txt,spec){
+  if(spec.t==='d') return toDate(txt);
+  if(spec.t==='n') return num(txt);
+  return String(txt??'').trim();
+}
+function collectFixes(){ // đọc lựa chọn hiện tại trên bảng chi tiết
+  const m={};
+  document.querySelectorAll('#tblDetail .fixsel').forEach(s=>{
+    if(s.value==='skip') return;
+    const inp=s.closest('td').querySelector('.fixinp');
+    (m[s.dataset.k]=m[s.dataset.k]||{})[s.dataset.f]={choice:s.value, custom:inp?inp.value:''};
+  });
+  return m;
+}
+function chosenValue(d,p,f){
+  if(d.choice==='custom') return parseCustom(d.custom,FIX_FIELDS[f]);
+  return d.choice==='bhxh' ? p.b[bhxhField(f)] : p.h[f];
+}
+function setCell(ws,r,c,val,spec){
+  const addr=XLSX.utils.encode_cell({r,c});
+  if(val==null||val===''||(val instanceof Date&&isNaN(val))){ ws[addr]={t:'s',v:''}; return; }
+  if(spec.t==='d'&&val instanceof Date) ws[addr]={t:'d',v:val,z:spec.z||'dd/mm/yyyy hh:mm'};
+  else if(spec.t==='n'&&typeof val==='number') ws[addr]={t:'n',v:val};
+  else ws[addr]={t:'s',v:String(val)};
+}
+
+// Áp các sửa đổi (theo BHXH / nhập tay) vào danh sách hồ sơ HIS đã parse.
+// Khi sửa cột tiền: cân đối lại bhyt=(4)+(5) và tong=(3)+(6)+(7) nếu tong không bị sửa trực tiếp.
+function applyFixesToHis(his,onSet){
+  if(!result) return {n:0, money:false};
+  const fixes=collectFixes();
+  const byKey=new Map(); result.matched.forEach(p=>byKey.set(pairKey(p),p));
+  let n=0, money=false;
+  his.forEach(h=>{
+    const key=h.card+'|'+keyMin(h.din), fx=fixes[key], p=byKey.get(key);
+    if(!fx||!p) return;
+    let touched=false, tongFixed=false;
+    for(const f in fx){
+      const d=fx[f]; if(d.choice==='his') continue; // giá trị HIS giữ nguyên
+      const val=chosenValue(d,p,f);
+      h[f]=val; n++;
+      if(onSet) onSet(h,f,val);
+      if(FIX_FIELDS[f].t==='n'){ touched=true; if(f==='tong') tongFixed=true; }
+    }
+    if(touched){
+      h.bhyt=(h.bhtt||0)+(h.cct||0);
+      if(onSet) onSet(h,'bhyt',h.bhyt);
+      if(!tongFixed){ h.tong=h.bhyt+(h.vientro||0)+(h.tutra||0); if(onSet) onSet(h,'tong',h.tong); }
+      money=true;
+    }
+  });
+  return {n, money};
+}
+function recomputeHisTotals(ws,parsed){
+  const cols=parsed.cols, c0=parsed.c0;
+  const MC=['tong','bhyt','bhtt','cct','vientro','tutra'];
+  const write=(row,list)=>MC.forEach(f=>setCell(ws,row,c0+cols[f],Math.round(list.reduce((a,h)=>a+(h[f]||0),0)*100)/100,{t:'n'}));
+  for(const code in parsed.secRows) write(parsed.secRows[code], parsed.filter(h=>h.kcb===code));
+  if(parsed.partRows.length===1) write(parsed.partRows[0], parsed);
+}
+
+async function exportFixedHis(){
+  const wb=await readWB(fileHis);
+  const parsed=parseHis(wb);
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const res=applyFixesToHis(parsed,(h,f,val)=>{
+    let v=val, spec=FIX_FIELDS[f];
+    if(parsed.flat){ // định dạng phẳng CHITIET_HS01BH: ngày = chuỗi 12 số, giới tính = 1/2
+      if(spec.t==='d'){ v=fmt12(val); spec={t:'s'}; }
+      else if(f==='sex'){ v=sexCode(val); spec={t:'n'}; }
+    }
+    setCell(ws,h.row,parsed.c0+parsed.cols[f],v,spec);
+  });
+  if(!res.n) throw new Error('Không có sửa đổi nào áp dụng cho file HIS — hãy chọn "HIS ← theo BHXH" hoặc "Nhập tay".');
+  if(res.money) recomputeHisTotals(ws,parsed);
+  XLSX.writeFile(wb,`BaoCao_01_DaSua_${stamp()}.xlsx`);
+  return res.n;
+}
+async function exportFixedBhxh(){
+  if(!result) throw new Error('Chưa có kết quả đối chiếu.');
+  const fixes=collectFixes();
+  const wb=await readWB(fileBhxh);
+  const parsed=parseBhxh(wb);
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const byKey=new Map(); result.matched.forEach(p=>byKey.set(pairKey(p),p));
+  let n=0;
+  parsed.forEach(b=>{
+    const key=b.card+'|'+keyMin(b.din), fx=fixes[key], p=byKey.get(key);
+    if(!fx||!p) return;
+    let touched=false, tongFixed=false;
+    for(const f in fx){
+      const d=fx[f]; if(d.choice==='bhxh') continue; // giá trị BHXH giữ nguyên
+      const bf=bhxhField(f);
+      if(!(parsed.cols[bf]>=0)) continue;
+      const val=chosenValue(d,p,f);
+      b[bf]=val; n++;
+      setCell(ws,b.row,parsed.c0+parsed.cols[bf],val,FIX_FIELDS[f]);
+      if(FIX_FIELDS[f].t==='n'){ touched=true; if(f==='tong') tongFixed=true; }
+    }
+    if(touched&&!tongFixed&&parsed.cols.tong>=0){
+      b.tong=(b.bhtt||0)+(b.cct||0)+(b.bntt||0);
+      setCell(ws,b.row,parsed.c0+parsed.cols.tong,b.tong,{t:'n'});
+    }
+  });
+  if(!n) throw new Error('Không có sửa đổi nào áp dụng cho file BHXH — hãy chọn "BHXH ← theo HIS" hoặc "Nhập tay".');
+  XLSX.writeFile(wb,`TKDLXML_DaSua_${stamp()}.xlsx`);
+  return n;
+}
+const stamp=()=>{ const d=new Date(); return ''+d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate()); };
+
+document.getElementById('tblDetail').addEventListener('change',e=>{
+  if(e.target.classList.contains('fixsel')){
+    const inp=e.target.closest('td').querySelector('.fixinp');
+    if(inp) inp.style.display = e.target.value==='custom' ? 'block' : 'none';
+  }
+  if(e.target.classList.contains('donechk')){
+    const k=e.target.dataset.k, mDone=loadDone();
+    if(e.target.checked) mDone[k]=1; else delete mDone[k];
+    saveDone(mDone);
+    document.querySelectorAll(`#tblDetail tr[data-g="${CSS.escape(k)}"]`)
+      .forEach(tr=>tr.classList.toggle('done', e.target.checked));
+  }
+});
+document.querySelectorAll('[data-fixall]').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('#tblDetail .fixsel').forEach(s=>{
+    s.value=btn.dataset.fixall;
+    const inp=s.closest('td').querySelector('.fixinp'); if(inp) inp.style.display='none';
+  });
+}));
+async function runFixExport(fn,label){
+  const st=document.getElementById('status'); st.className='';
+  try{
+    st.textContent='Đang tạo file '+label+'…';
+    const n=await fn();
+    st.textContent=`Đã tải file ${label} về máy (${n} ô dữ liệu được sửa theo lựa chọn).`;
+  }catch(err){ st.className='err'; st.textContent='Lỗi: '+err.message; }
+}
+document.getElementById('btnFixHis').addEventListener('click',()=>runFixExport(exportFixedHis,'BaoCao_01 đã sửa'));
+document.getElementById('btnFixBhxh').addEventListener('click',()=>runFixExport(exportFixedBhxh,'TKDLXML đã sửa'));
+
+/* ---------- Xem báo cáo BH01 trên web & xuất Excel BH01 (đã áp phương án sửa) ---------- */
+const BH01_SECS=[
+  {code:'01', roman:'I',  label:'KHÁM BỆNH, CHỮA BỆNH NGOẠI TRÚ'},
+  {code:'02', roman:'II', label:'ĐIỀU TRỊ NGOẠI TRÚ'},
+  {code:'04', roman:'III',label:'ĐIỀU TRỊ BAN NGÀY'},
+  {code:'03', roman:'IV', label:'ĐIỀU TRỊ NỘI TRÚ'}
+];
+const BH01_MONEY=['tong','bhyt','bhtt','cct','vientro','tutra'];
+let bh01Model=null;
+
+function makeBH01Model(his, marks){
+  const totals=list=>Object.fromEntries(BH01_MONEY.map(f=>[f, Math.round(list.reduce((a,h)=>a+(h[f]||0),0)*100)/100]));
+  const sections=BH01_SECS.filter(s=>his.some(h=>h.kcb===s.code))
+    .map(s=>{ const rows=his.filter(h=>h.kcb===s.code); return {...s, rows, t:totals(rows)}; });
+  return {meta:his.meta||{}, sections, grand:totals(his), n:his.length, marks:marks||new Map()};
+}
+
+function renderBH01(m, nFix){
+  document.getElementById('bh01Area').style.display='block';
+  const meta=m.meta;
+  document.getElementById('bh01Sub').textContent=`— Tháng ${meta.thang??'…'}/${meta.nam??'…'} · ${m.n.toLocaleString('vi-VN')} hồ sơ`;
+  document.getElementById('bh01Note').innerHTML = nFix
+    ? `Đã áp dụng <b>${nFix}</b> sửa đổi theo phương án chọn ở mục 4 — ô <span class="badge b-ok">nền xanh</span> là giá trị đã sửa (kể cả cột tiền được cân đối lại).`
+    : 'Chưa có phương án sửa nào được chọn — hiển thị nguyên trạng dữ liệu file HIS.';
+  document.getElementById('bh01Head').innerHTML=`
+    <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; font-size:12.5px; margin-bottom:4px">
+      <div><b>TÊN ĐƠN VỊ:</b> ${esc(meta.ten||'…')}<br><b>MÃ ĐƠN VỊ:</b> ${esc(meta.macskcb||'…')}</div>
+      <div style="text-align:center"><b>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</b><br>Độc lập - Tự do - Hạnh phúc</div>
+      <div><b>Mẫu số 01/BH</b></div>
+    </div>
+    <div style="text-align:center; margin:6px 0 12px">
+      <b style="font-size:14.5px">BẢNG TỔNG HỢP ĐỀ NGHỊ THANH TOÁN CHI PHÍ KHÁM BỆNH, CHỮA BỆNH BẢO HIỂM Y TẾ</b><br>
+      <span>Tháng ${meta.thang??'…'} quý ${meta.quy??(meta.thang?Math.ceil(meta.thang/3):'…')} năm ${meta.nam??'…'}</span><br>
+      <span style="font-size:12px;color:var(--muted)">Đơn vị: đồng</span>
+    </div>`;
+  const cls=(h,f,extra)=>{
+    const a=[]; if(extra) a.push(extra);
+    const s=m.marks.get(h); if(s&&s.has(f)) a.push('hlx');
+    return a.length?` class="${a.join(' ')}"`:'';
+  };
+  const moneyTds=t=>BH01_MONEY.map(f=>`<td class="num">${fmtVND(t[f])}</td>`).join('');
+  const parts=['<tr><th>STT</th><th>Họ và tên</th><th>Ngày sinh</th><th>Giới tính</th><th>Mã thẻ BHYT</th><th>Mã bệnh chính</th><th>Ngày vào viện</th><th>Ngày vào nội trú</th><th>Ngày ra viện</th><th>Số ngày ĐT</th><th>Tổng chi (2)</th><th>CP BHYT (3)</th><th>Đề nghị quỹ (4)</th><th>Cùng chi trả (5)</th><th>Viện trợ (6)</th><th>BN tự trả (7)</th></tr>'];
+  parts.push(`<tr class="partrow"><td colspan="10">A. ${esc(meta.ten||'')}</td>${moneyTds(m.grand)}</tr>`);
+  m.sections.forEach(s=>{
+    parts.push(`<tr class="secrow"><td>${s.roman}</td><td colspan="9">${s.label}</td>${moneyTds(s.t)}</tr>`);
+    s.rows.forEach((h,i)=>{
+      parts.push(`<tr><td class="num">${i+1}</td><td${cls(h,'name')}>${esc(h.name)}</td><td${cls(h,'dob')}>${fmtD(h.dob)}</td><td${cls(h,'sex')}>${esc(h.sex)}</td><td>${esc(h.card)}</td><td${cls(h,'icd')}>${esc(h.icd)}</td><td>${fmtDT(h.din)}</td><td>${fmtDT(h.vnt)}</td><td${cls(h,'dout')}>${fmtDT(h.dout)}</td><td class="num">${h.songay??0}</td>`+
+        BH01_MONEY.map(f=>`<td${cls(h,f,'num')}>${fmtVND(h[f])}</td>`).join('')+'</tr>');
+    });
+  });
+  parts.push(`<tr class="partrow"><td colspan="10">Tổng cộng (A+B+...): ${m.n.toLocaleString('vi-VN')} lượt</td>${moneyTds(m.grand)}</tr>`);
+  document.getElementById('tblBH01').innerHTML=parts.join('');
+}
+
+// Xuất đúng biểu mẫu Mẫu số 01/BH — Phụ lục I, TT 12/2026/TT-BTC (16 cột A…7)
+function exportBH01Xlsx(m){
+  const meta=m.meta;
+  const quy=meta.quy??(meta.thang?Math.ceil(meta.thang/3):'…');
+  const W=16, rows=[], merges=[];
+  const blank=()=>Array(W).fill(null);
+  const M=(r1,c1,r2,c2)=>merges.push({s:{r:r1,c:c1},e:{r:r2,c:c2}});
+  const money=(r,t)=>{ r[10]=t.tong; r[11]=t.bhyt; r[12]=t.bhtt; r[13]=t.cct; r[14]=t.vientro; r[15]=t.tutra; };
+  let r;
+  // Thông tin chung
+  r=blank(); r[0]='TÊN ĐƠN VỊ:'; r[1]=meta.ten||''; r[6]='CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM'; r[14]='Mẫu số 01/BH'; rows.push(r);
+  M(0,1,0,4); M(0,6,0,11); M(0,14,0,15);
+  r=blank(); r[0]='MÃ ĐƠN VỊ:'; r[1]=meta.macskcb||''; r[6]='Độc lập - Tự do - Hạnh phúc'; rows.push(r);
+  M(1,6,1,11);
+  rows.push(blank());
+  const iTitle=rows.length;
+  r=blank(); r[0]='BẢNG TỔNG HỢP ĐỀ NGHỊ THANH TOÁN CHI PHÍ KHÁM BỆNH, CHỮA BỆNH BẢO HIỂM Y TẾ'; rows.push(r);
+  M(iTitle,0,iTitle,15);
+  r=blank(); r[0]=`Tháng ${meta.thang??'…'} quý ${quy} năm ${meta.nam??'…'}`; rows.push(r);
+  M(iTitle+1,0,iTitle+1,15);
+  r=blank(); r[15]='Đơn vị: đồng'; rows.push(r);
+  // Header 3 tầng theo TT12
+  const iH1=rows.length;
+  r=blank();
+  r[0]='STT'; r[1]='Họ và tên'; r[2]='Ngày sinh'; r[3]='Giới tính'; r[4]='Mã thẻ bảo hiểm y tế'; r[5]='Mã bệnh chính';
+  r[6]='Ngày vào viện'; r[7]='Ngày vào nội trú'; r[8]='Ngày ra viện'; r[9]='Số ngày điều trị thực tế';
+  r[10]='Tổng chi khám bệnh, chữa bệnh'; r[11]='Chi phí khám bệnh, chữa bệnh bảo hiểm y tế'; r[12]='Trong đó';
+  r[14]='Chi phí được viện trợ, tài trợ'; r[15]='Chi phí người bệnh tự trả'; rows.push(r);
+  const iH2=rows.length;
+  r=blank(); r[12]='Đề nghị quỹ bảo hiểm y tế thanh toán'; r[13]='Người bệnh cùng chi trả'; rows.push(r);
+  for(let c=0;c<W;c++){ if(c!==12&&c!==13) M(iH1,c,iH2,c); } // gộp dọc các cột đơn
+  M(iH1,12,iH1,13); // "Trong đó" gộp ngang trên (4)+(5)
+  const iH3=rows.length;
+  r=['(A)','(B)','(C)','(D)','(E)','(G)','(H)','(I)','(K)','(1)','(2) = (3+6+7)','(3) = (4+5)','(4)','(5)','(6)','(7)']; rows.push(r);
+  // Phần A + các Mục
+  const iBody=rows.length;
+  r=blank(); r[0]='A. '+(meta.ten||''); money(r,m.grand); rows.push(r);
+  M(iBody,0,iBody,9);
+  m.sections.forEach(s=>{
+    const iSec=rows.length;
+    r=blank(); r[0]=s.roman; r[1]=s.label; money(r,s.t); rows.push(r);
+    M(iSec,1,iSec,9);
+    s.rows.forEach((h,i)=>{
+      r=blank();
+      r[0]=i+1; r[1]=h.name; r[2]=fmtD(h.dob); r[3]=h.sex; r[4]=h.card; r[5]=h.icd;
+      r[6]=fmtDT(h.din); r[7]=fmtDT(h.vnt); r[8]=fmtDT(h.dout); r[9]=h.songay??0;
+      money(r,h); rows.push(r);
+    });
+  });
+  const iTong=rows.length;
+  r=blank(); r[0]=`Tổng cộng (A+B+...): ${m.n.toLocaleString('vi-VN')} lượt`; money(r,m.grand); rows.push(r);
+  M(iTong,0,iTong,9);
+  // Chữ ký
+  rows.push(blank());
+  const iSig=rows.length;
+  r=blank(); r[12]='Ngày ...... tháng ...... năm ......'; rows.push(r); M(iSig,12,iSig,15);
+  r=blank(); r[1]='NGƯỜI LẬP BIỂU'; r[6]='KẾ TOÁN TRƯỞNG'; r[12]='THỦ TRƯỞNG ĐƠN VỊ'; rows.push(r);
+  M(iSig+1,1,iSig+1,3); M(iSig+1,6,iSig+1,8); M(iSig+1,12,iSig+1,15);
+  r=blank(); r[1]='(Ký, họ tên)'; r[6]='(Ký, họ tên)'; r[12]='(Ký, họ tên, đóng dấu)'; rows.push(r);
+  M(iSig+2,1,iSig+2,3); M(iSig+2,6,iSig+2,8); M(iSig+2,12,iSig+2,15);
+
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!merges']=merges;
+  ws['!cols']=[6,24,11,9,18,11,17,17,17,10,14,14,14,13,12,13].map(w=>({wch:w}));
+  ws['!rows']=[]; ws['!rows'][iH1]={hpt:30}; ws['!rows'][iH2]={hpt:42}; ws['!rows'][iTitle]={hpt:22};
+
+  // Kẻ viền + phông chữ (xlsx-js-style)
+  const thin={style:'thin', color:{rgb:'000000'}};
+  const BD={top:thin,bottom:thin,left:thin,right:thin};
+  const cell=(ri,ci)=>{ const a=XLSX.utils.encode_cell({r:ri,c:ci}); if(!ws[a]) ws[a]={t:'s',v:''}; return ws[a]; };
+  for(let ri=iH1; ri<=iTong; ri++){
+    const isHead=ri<iBody, isSum=ri===iTong||ri===iBody||rows[ri][1]&&String(rows[ri][0]).match(/^(I|II|III|IV)$/);
+    for(let ci=0; ci<W; ci++){
+      const c=cell(ri,ci);
+      c.s={ border:BD,
+        font:{name:'Times New Roman', sz:10, bold:!!(isHead||isSum)},
+        alignment: isHead ? {horizontal:'center', vertical:'center', wrapText:true}
+          : {horizontal: ci===0?'center':(c.t==='n'?'right':'left'), vertical:'center'} };
+    }
+  }
+  const setS=(ri,ci,s)=>{ cell(ri,ci).s=s; };
+  const TNR=sz=>({name:'Times New Roman', sz:sz||11});
+  setS(0,0,{font:{...TNR(),bold:true}}); setS(1,0,{font:{...TNR(),bold:true}});
+  setS(0,1,{font:TNR()}); setS(1,1,{font:TNR()});
+  setS(0,6,{font:{...TNR(),bold:true}, alignment:{horizontal:'center'}});
+  setS(1,6,{font:{...TNR(),bold:true}, alignment:{horizontal:'center'}});
+  setS(0,14,{font:{...TNR(),bold:true}, alignment:{horizontal:'center'}});
+  setS(iTitle,0,{font:{...TNR(13),bold:true}, alignment:{horizontal:'center', vertical:'center', wrapText:true}});
+  setS(iTitle+1,0,{font:TNR(), alignment:{horizontal:'center'}});
+  setS(iTitle+2,15,{font:{...TNR(10),italic:true}, alignment:{horizontal:'right'}});
+  setS(iSig,12,{font:{...TNR(),italic:true}, alignment:{horizontal:'center'}});
+  [[1,'NGƯỜI LẬP BIỂU'],[6,'KẾ TOÁN TRƯỞNG'],[12,'THỦ TRƯỞNG ĐƠN VỊ']].forEach(([c])=>{
+    setS(iSig+1,c,{font:{...TNR(),bold:true}, alignment:{horizontal:'center'}});
+    setS(iSig+2,c,{font:{...TNR(10),italic:true}, alignment:{horizontal:'center'}});
+  });
+
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'BaoCao_01');
+  const ky=(meta.thang&&meta.nam)?`_${meta.nam}${p2(meta.thang)}`:'';
+  XLSX.writeFile(wb, `BH01_${meta.macskcb||'CSKCB'}${ky}_DaSua.xlsx`);
+}
+
+// Dựng model BH01 từ File 1 + các phương án sửa đang chọn ở mục 4 (nếu có)
+async function buildFixedBH01(){
+  const his=parseHis(await readWB(fileHis));
+  const marks=new Map(); // hồ sơ → tập trường đã sửa (để tô màu)
+  const fx=applyFixesToHis(his,(h,f)=>{ let s=marks.get(h); if(!s){s=new Set(); marks.set(h,s);} s.add(f); });
+  bh01Model=makeBH01Model(his,marks);
+  return fx;
+}
+document.getElementById('btnViewBH01').addEventListener('click', async ()=>{
+  const st=document.getElementById('status');
+  st.className=''; st.textContent='Đang dựng báo cáo BH01…';
+  try{
+    const fx=await buildFixedBH01();
+    renderBH01(bh01Model, fx.n);
+    st.textContent=`Đã dựng báo cáo BH01: ${bh01Model.n} hồ sơ${fx.n?`, áp dụng ${fx.n} sửa đổi`:''}.`;
+    document.getElementById('bh01Area').scrollIntoView({behavior:'smooth'});
+  }catch(err){ st.className='err'; st.textContent='Lỗi: '+err.message; }
+});
+document.getElementById('btnBH01Xlsx').addEventListener('click', ()=>{
+  if(bh01Model) exportBH01Xlsx(bh01Model);
+});
+// Nút ở mục 4: xuất thẳng file Excel BH01 với các phương án sửa đã chọn
+document.getElementById('btnBH01Fixed').addEventListener('click', async ()=>{
+  const st=document.getElementById('status');
+  st.className=''; st.textContent='Đang tạo file Excel BH01 đã sửa…';
+  try{
+    const fx=await buildFixedBH01();
+    exportBH01Xlsx(bh01Model);
+    st.textContent=`Đã tải file Excel BH01 về máy: ${bh01Model.n} hồ sơ, áp dụng ${fx.n} sửa đổi từ mục 4.`;
+  }catch(err){ st.className='err'; st.textContent='Lỗi: '+err.message; }
+});
+
+/* ---------- Tổng hợp Mẫu số 02/BH theo quý (TT 12/2026/TT-BTC) ---------- */
+// Nhóm chỉ tiêu hàng theo MA_LOAI_KCB (QĐ 824/QĐ-BYT):
+const BH02_MUC=[
+  {stt:1, label:'Khám bệnh, chữa bệnh ngoại trú', codes:['01','06','07']},
+  {stt:2, label:'Điều trị ngoại trú',             codes:['02','05','08']},
+  {stt:3, label:'Điều trị ban ngày',              codes:['04','09']},
+  {stt:4, label:'Điều trị nội trú',               codes:['03']}
+];
+let bh02Files=[], bh02Model=null;
+
+// Ánh xạ nhãn "Loại KCB" (file Mau01BH tải từ cổng BHXH) → MA_LOAI_KCB
+// theo Phụ lục 1 QĐ 824/QĐ-BYT ngày 15/02/2023 của Bộ Y tế
+function kcbCodeFromLabel(v){
+  const s=String(v??'').trim();
+  if(/^\d{1,2}$/.test(s)) return s.padStart(2,'0'); // đã là mã số
+  const t=stripDiacritics(s); // chữ hoa, không dấu
+  if(!t) return null;
+  if(t.includes('NOI TRU BAN NGAY')) return '04';
+  if(t.includes('NOI TRU'))          return '03';
+  if(t.includes('BAN NGAY'))         return '04';
+  if(t.includes('DIEU TRI LUU'))     return '05';
+  if(t.includes('DIEU TRI NGOAI TRU')) return '02';
+  if(t.includes('TU XA'))            return '06';
+  if(t.includes('TAI NHA'))          return '07';
+  if(t.includes('KHAM'))             return '01';
+  return s; // nhãn lạ: giữ nguyên để cảnh báo "ngoài danh mục"
+}
+
+function parseMau01BH(wb, fname){
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+  // Nhận dạng 2 định dạng: (1) CHITIET_HS01BH cột kỹ thuật; (2) Mau01BH cổng BHXH tiêu đề tiếng Việt
+  let hIdx=-1, fmt=0;
+  for(let i=0;i<Math.min(rows.length,10);i++){
+    const R=rows[i]; if(!R) continue;
+    if(R.some(c=>String(c??'').toUpperCase().trim()==='MA_LOAI_KCB')){ hIdx=i; fmt=1; break; }
+    const lo=R.map(low);
+    if(lo.some(c=>c.includes('loại kcb'))&&lo.some(c=>c.includes('mã thẻ'))){ hIdx=i; fmt=2; break; }
+  }
+  if(hIdx<0) throw new Error('không nhận dạng được định dạng — cần cột "MA_LOAI_KCB" (file CHITIET_HS01BH) hoặc "Loại KCB" (file Mau01BH tải từ cổng BHXH).');
+  const out=[];
+  if(fmt===1){
+    const H=rows[hIdx].map(c=>String(c??'').toUpperCase().trim());
+    const ix=n=>H.indexOf(n);
+    const col={kcb:ix('MA_LOAI_KCB'), tong:ix('T_TONGCHI_BV'), bh:ix('T_TONGCHI_BH'), bhtt:ix('T_BHTT'),
+      cct:ix('T_BNCCT'), bntt:ix('T_BNTT'), nk:ix('T_NGUONKHAC'), ma:ix('MA_CSKCB'), nam:ix('NAM_QT'), thang:ix('THANG_QT')};
+    if(col.bhtt<0||col.tong<0) throw new Error('thiếu cột T_TONGCHI_BV / T_BHTT.');
+    for(let i=hIdx+1;i<rows.length;i++){
+      const r=rows[i]; if(!r) continue;
+      const kcb=String(r[col.kcb]??'').trim();
+      if(!/^\d{1,2}$/.test(kcb)) continue;
+      out.push({kcb:kcb.padStart(2,'0'), tong:num(r[col.tong])||0, bh:num(r[col.bh])||0, bhtt:num(r[col.bhtt])||0,
+        cct:num(r[col.cct])||0, bntt:num(r[col.bntt])||0, nk:num(r[col.nk])||0,
+        ma:String(r[col.ma]??'').trim(), nam:num(r[col.nam]), thang:num(r[col.thang]), dn:''});
+    }
+  } else {
+    const H=rows[hIdx].map(low);
+    const find=n=>H.findIndex(h=>h.includes(n));
+    const col={the:find('mã thẻ'), kcb:find('loại kcb'), bh:find('tổng chi bh'), tong:find('tổng chi bv'),
+      cct:find('bệnh nhân cct'), nk:find('nguồn khác'), bhtt:find('bảo hiểm tt'), bntt:find('bệnh nhân tt'),
+      ma:find('mã cơ sở'), dout:find('ngày ra'), denghi:find('đề nghị tt'),
+      name:find('họ'), tthai:find('trạng thái đối chiếu')};
+    if(col.tong<0||col.bhtt<0) throw new Error('thiếu cột "Tổng chi BV" / "Bảo hiểm TT".');
+    // Kỳ báo cáo lấy từ tên file Mau01BH_<mã>_yyyymm; dự phòng: tháng của "Ngày ra"
+    let fNam=null, fThang=null;
+    const fm=String(fname||'').match(/(20\d{2})(0[1-9]|1[0-2])/);
+    if(fm){ fNam=+fm[1]; fThang=+fm[2]; }
+    for(let i=hIdx+1;i<rows.length;i++){
+      const r=rows[i]; if(!r) continue;
+      const card=String(r[col.the]??'').trim();
+      if(card.length<10) continue;
+      const kcb=kcbCodeFromLabel(r[col.kcb]);
+      if(kcb==null) continue;
+      let nam=fNam, thang=fThang;
+      if(nam==null){ const d=toDate(r[col.dout]); if(d){ nam=d.getFullYear(); thang=d.getMonth()+1; } }
+      out.push({kcb, tong:num(r[col.tong])||0, bh:num(r[col.bh])||0, bhtt:num(r[col.bhtt])||0,
+        cct:num(r[col.cct])||0, bntt:num(r[col.bntt])||0, nk:num(r[col.nk])||0,
+        ma:String(r[col.ma]??'').trim(), nam, thang, dn:low(r[col.denghi]),
+        card, name:String(r[col.name]??'').trim(), tthai:low(r[col.tthai])});
+    }
+  }
+  if(!out.length) throw new Error('không trích được hồ sơ nào.');
+  return out;
+}
+
+// Đọc số tiền thành chữ tiếng Việt
+function docTienBangChu(n){
+  n=Math.round(Math.abs(n||0));
+  if(n===0) return 'Không đồng';
+  const CS=['không','một','hai','ba','bốn','năm','sáu','bảy','tám','chín'];
+  const doc3=(so,full)=>{
+    const tr=Math.floor(so/100), ch=Math.floor(so/10)%10, dv=so%10;
+    let s='';
+    if(full||tr>0) s=CS[tr]+' trăm';
+    if(ch>1){
+      s+=(s?' ':'')+CS[ch]+' mươi';
+      if(dv===1) s+=' mốt'; else if(dv===4) s+=' tư'; else if(dv===5) s+=' lăm'; else if(dv>0) s+=' '+CS[dv];
+    } else if(ch===1){
+      s+=(s?' ':'')+'mười';
+      if(dv===5) s+=' lăm'; else if(dv>0) s+=' '+CS[dv];
+    } else if(dv>0){
+      s+=s?' lẻ '+CS[dv]:CS[dv];
+    }
+    return s;
+  };
+  const units=['','nghìn','triệu','tỷ','nghìn tỷ','triệu tỷ'];
+  const groups=[]; let x=n;
+  while(x>0){ groups.push(x%1000); x=Math.floor(x/1000); }
+  let s='';
+  for(let i=groups.length-1;i>=0;i--){
+    if(groups[i]>0) s+=(s?' ':'')+doc3(groups[i], s!=='')+(units[i]?' '+units[i]:'');
+  }
+  return s.charAt(0).toUpperCase()+s.slice(1)+' đồng';
+}
+
+function buildBH02(fileRecs, ten){
+  const all=fileRecs.flatMap(f=>f.recs);
+  const R=v=>Math.round(v); // TT12: làm tròn đến đơn vị đồng
+  const agg=list=>({ luot:list.length,
+    tong:R(list.reduce((a,x)=>a+x.tong,0)), bh:R(list.reduce((a,x)=>a+x.bh,0)),
+    bhtt:R(list.reduce((a,x)=>a+x.bhtt,0)), cct:R(list.reduce((a,x)=>a+x.cct,0)),
+    nk:R(list.reduce((a,x)=>a+x.nk,0)), bntt:R(list.reduce((a,x)=>a+x.bntt,0)) });
+  const muc=BH02_MUC.map(m=>({...m, t:agg(all.filter(x=>m.codes.includes(x.kcb)))}));
+  const grand=agg(all);
+  // kỳ báo cáo: lấy quý/năm phổ biến nhất từ NAM_QT/THANG_QT
+  const monthKey=x=>(x.nam??'?')+'-'+String(x.thang??'?').padStart(2,'0');
+  const perFile=fileRecs.map(f=>{
+    const months=[...new Set(f.recs.map(monthKey))].sort();
+    return {name:f.name, n:f.recs.length, months, bhtt:R(f.recs.reduce((a,x)=>a+x.bhtt,0))};
+  });
+  const monthCount={};
+  all.forEach(x=>{ const k=monthKey(x); monthCount[k]=(monthCount[k]||0)+1; });
+  const qOf=k=>{ const m=k.match(/^(\d{4})-(\d{1,2})$/); return m?`${m[1]}-Q${Math.ceil(+m[2]/3)}`:null; };
+  const quarters=[...new Set(Object.keys(monthCount).map(qOf).filter(Boolean))];
+  let nam=null, quy=null;
+  if(quarters.length){ const m=quarters[0].match(/^(\d{4})-Q(\d)$/); nam=+m[1]; quy=+m[2]; }
+  const warn=[];
+  if(quarters.length>1) warn.push('Các file KHÔNG cùng một quý: '+quarters.join(', ')+' — kết quả tổng hợp sẽ sai kỳ báo cáo.');
+  if(quy){
+    const expect=[3*quy-2,3*quy-1,3*quy].map(t=>`${nam}-${String(t).padStart(2,'0')}`);
+    const missing=expect.filter(k=>!monthCount[k]);
+    if(missing.length) warn.push('Chưa có dữ liệu tháng: '+missing.map(k=>k.split('-')[1]+'/'+k.split('-')[0]).join(', ')+'.');
+  }
+  // trùng tháng giữa các file → nguy cơ cộng đôi
+  const seen={};
+  perFile.forEach(f=>f.months.forEach(k=>{ (seen[k]=seen[k]||[]).push(f.name); }));
+  Object.entries(seen).filter(([,v])=>v.length>1).forEach(([k,v])=>
+    warn.push(`Tháng ${k.split('-')[1]}/${k.split('-')[0]} xuất hiện trong ${v.length} file (${v.join(' · ')}) — kiểm tra trùng dữ liệu!`));
+  const other=all.filter(x=>!BH02_MUC.some(m=>m.codes.includes(x.kcb)));
+  if(other.length) warn.push(`${other.length} hồ sơ có Loại KCB/MA_LOAI_KCB ngoài danh mục QĐ 824 (${[...new Set(other.map(x=>x.kcb))].join(', ')}) — không được tính vào 4 mục nhưng VẪN tính vào tổng cộng.`);
+  const chuaDN=all.filter(x=>x.dn&&x.dn.includes('chưa')).length;
+  if(chuaDN) warn.push(`${chuaDN} hồ sơ đang ở trạng thái "Chưa đề nghị" trên cổng — vẫn được tính vào BH02, cần đề nghị TT trước khi gửi quyết toán.`);
+  const lech=all.filter(x=>x.tthai&&x.tthai.includes('lệch'));
+  if(lech.length){
+    const ds=lech.slice(0,10).map(x=>x.card+(x.name?` (${x.name})`:'')).join('; ');
+    warn.push(`${lech.length} hồ sơ bị cổng đánh dấu "Đối chiếu lệch" (cột Trạng thái đối chiếu) — phải kiểm tra/sửa trước khi đề nghị TT & quyết toán: ${ds}${lech.length>10?' …':''}.`);
+  }
+  const mas=[...new Set(all.map(x=>x.ma).filter(Boolean))];
+  if(mas.length>1) warn.push('Nhiều MA_CSKCB khác nhau trong dữ liệu: '+mas.join(', ')+'.');
+  return {ten, macskcb:mas[0]||'', nam, quy, muc, grand, perFile, monthCount, warn};
+}
+
+function renderBH02(m){
+  document.getElementById('bh02Area').style.display='block';
+  document.getElementById('bh02Head').innerHTML=`
+    <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; font-size:12.5px; margin:8px 0 4px">
+      <div><b>TÊN ĐƠN VỊ:</b> ${esc(m.ten||'…')}<br><b>MÃ ĐƠN VỊ:</b> ${esc(m.macskcb||'…')}</div>
+      <div style="text-align:center"><b>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</b><br>Độc lập - Tự do - Hạnh phúc</div>
+      <div><b>Mẫu số 02/BH</b></div>
+    </div>
+    <div style="text-align:center; margin:6px 0 12px">
+      <b style="font-size:14.5px">BÁO CÁO QUYẾT TOÁN CHI PHÍ KHÁM BỆNH, CHỮA BỆNH BẢO HIỂM Y TẾ</b><br>
+      <span>Quý ${m.quy??'…'} năm ${m.nam??'…'}</span><br>
+      <span style="font-size:12px;color:var(--muted)">Đơn vị: đồng</span>
+    </div>`;
+  const tds=t=>`<td class="num">${t.luot.toLocaleString('vi-VN')}</td><td class="num">${fmtVND(t.tong)}</td><td class="num">${fmtVND(t.bh)}</td><td class="num">${fmtVND(t.bhtt)}</td><td class="num">${fmtVND(t.cct)}</td><td class="num">${fmtVND(t.nk)}</td><td class="num">${fmtVND(t.bntt)}</td>`;
+  document.getElementById('tblBH02').innerHTML=
+    '<tr><th>STT</th><th>Chỉ tiêu</th><th>Số lượt (1)</th><th>Tổng chi KCB (2)</th><th>CP KCB BHYT (3)</th><th>Đề nghị quỹ BHYT TT (4)</th><th>Người bệnh cùng chi trả (5)</th><th>Viện trợ, tài trợ (6)</th><th>Người bệnh tự trả (7)</th></tr>'+
+    `<tr class="partrow"><td>A</td><td>${esc(m.ten||'CƠ SỞ KHÁM BỆNH, CHỮA BỆNH')}</td>${tds(m.grand)}</tr>`+
+    m.muc.map(x=>`<tr><td class="num">${x.stt}</td><td>${x.label}</td>${tds(x.t)}</tr>`).join('')+
+    `<tr class="partrow"><td colspan="2">Tổng cộng (A+B+...)</td>${tds(m.grand)}</tr>`;
+  document.getElementById('bh02DeNghi').innerHTML=
+    `Chi phí khám bệnh, chữa bệnh bảo hiểm y tế đề nghị quỹ bảo hiểm y tế thanh toán: <b>${fmtVND(m.grand.bhtt)}</b> đồng<br>(viết bằng chữ: <i>${esc(docTienBangChu(m.grand.bhtt))}</i>)`;
+  document.getElementById('tblBh02Months').innerHTML=
+    '<tr><th>File</th><th>Tháng dữ liệu</th><th>Số hồ sơ</th><th>Đề nghị quỹ BHYT TT (4)</th></tr>'+
+    m.perFile.map(f=>`<tr><td>${esc(f.name)}</td><td>${f.months.map(k=>k.split('-')[1]+'/'+k.split('-')[0]).join(', ')}</td><td class="num">${f.n.toLocaleString('vi-VN')}</td><td class="num">${fmtVND(f.bhtt)}</td></tr>`).join('');
+  document.getElementById('bh02Note').innerHTML = m.warn.length
+    ? '⚠ '+m.warn.map(esc).join('<br>⚠ ')
+    : '✓ Dữ liệu đủ 3 tháng trong quý, không phát hiện trùng lặp hay lệch kỳ.';
+}
+
+// Xuất đúng biểu mẫu Mẫu số 02/BH — Phụ lục I, TT 12/2026/TT-BTC (9 cột A…7)
+function exportBH02Xlsx(m){
+  const W=9, rows=[], merges=[];
+  const blank=()=>Array(W).fill(null);
+  const M=(r1,c1,r2,c2)=>merges.push({s:{r:r1,c:c1},e:{r:r2,c:c2}});
+  const money=(r,t)=>{ r[2]=t.luot; r[3]=t.tong; r[4]=t.bh; r[5]=t.bhtt; r[6]=t.cct; r[7]=t.nk; r[8]=t.bntt; };
+  let r;
+  r=blank(); r[0]='TÊN ĐƠN VỊ:'; r[1]=m.ten||''; r[4]='CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM'; r[8]='Mẫu số 02/BH'; rows.push(r);
+  M(0,1,0,2); M(0,4,0,7);
+  r=blank(); r[0]='MÃ ĐƠN VỊ:'; r[1]=m.macskcb||''; r[4]='Độc lập - Tự do - Hạnh phúc'; rows.push(r);
+  M(1,4,1,7);
+  rows.push(blank());
+  const iTitle=rows.length;
+  r=blank(); r[0]='BÁO CÁO QUYẾT TOÁN CHI PHÍ KHÁM BỆNH, CHỮA BỆNH BẢO HIỂM Y TẾ'; rows.push(r); M(iTitle,0,iTitle,8);
+  r=blank(); r[0]=`Quý ${m.quy??'…'} năm ${m.nam??'…'}`; rows.push(r); M(iTitle+1,0,iTitle+1,8);
+  r=blank(); r[8]='Đơn vị: đồng'; rows.push(r);
+  const iH1=rows.length;
+  r=blank(); r[0]='STT'; r[1]='Chỉ tiêu'; r[2]='Số lượt'; r[3]='Tổng chi khám bệnh, chữa bệnh';
+  r[4]='Chi phí khám bệnh, chữa bệnh bảo hiểm y tế'; r[5]='Trong đó'; r[7]='Chi phí được viện trợ, tài trợ'; r[8]='Chi phí người bệnh tự trả'; rows.push(r);
+  const iH2=rows.length;
+  r=blank(); r[5]='Đề nghị quỹ bảo hiểm y tế thanh toán'; r[6]='Người bệnh cùng chi trả'; rows.push(r);
+  for(let c=0;c<W;c++){ if(c!==5&&c!==6) M(iH1,c,iH2,c); }
+  M(iH1,5,iH1,6);
+  rows.push(['(A)','(B)','(1)','(2) = (3+6+7)','(3) = (4) + (5)','(4)','(5)','(6)','(7)']);
+  const iBody=rows.length;
+  r=blank(); r[0]='A'; r[1]=m.ten||'CƠ SỞ KHÁM BỆNH, CHỮA BỆNH'; money(r,m.grand); rows.push(r);
+  m.muc.forEach(x=>{ r=blank(); r[0]=x.stt; r[1]=x.label; money(r,x.t); rows.push(r); });
+  const iTong=rows.length;
+  r=blank(); r[0]='Tổng cộng (A+B+...)'; money(r,m.grand); rows.push(r); M(iTong,0,iTong,1);
+  const iDN=rows.length;
+  r=blank(); r[0]=`Chi phí khám bệnh, chữa bệnh bảo hiểm y tế đề nghị quỹ bảo hiểm y tế thanh toán: ${fmtVND(m.grand.bhtt)} đồng (viết bằng chữ: ${docTienBangChu(m.grand.bhtt)})`;
+  rows.push(r); M(iDN,0,iDN,8);
+  rows.push(blank());
+  const iSig=rows.length;
+  r=blank(); r[6]='Ngày ...... tháng ...... năm ......'; rows.push(r); M(iSig,6,iSig,8);
+  r=blank(); r[0]='NGƯỜI LẬP BIỂU'; r[3]='KẾ TOÁN TRƯỞNG'; r[6]='THỦ TRƯỞNG ĐƠN VỊ'; rows.push(r);
+  M(iSig+1,0,iSig+1,2); M(iSig+1,3,iSig+1,5); M(iSig+1,6,iSig+1,8);
+  r=blank(); r[0]='(Ký, họ tên)'; r[3]='(Ký, họ tên)'; r[6]='(Ký, họ tên, đóng dấu)'; rows.push(r);
+  M(iSig+2,0,iSig+2,2); M(iSig+2,3,iSig+2,5); M(iSig+2,6,iSig+2,8);
+
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!merges']=merges;
+  ws['!cols']=[6,34,10,16,16,16,15,14,15].map(w=>({wch:w}));
+  ws['!rows']=[]; ws['!rows'][iH1]={hpt:34}; ws['!rows'][iH2]={hpt:42}; ws['!rows'][iDN]={hpt:30};
+  const thin={style:'thin', color:{rgb:'000000'}};
+  const BD={top:thin,bottom:thin,left:thin,right:thin};
+  const TNR=sz=>({name:'Times New Roman', sz:sz||11});
+  const cell=(ri,ci)=>{ const a=XLSX.utils.encode_cell({r:ri,c:ci}); if(!ws[a]) ws[a]={t:'s',v:''}; return ws[a]; };
+  for(let ri=iH1; ri<=iTong; ri++){
+    const isHead=ri<iBody, isSum=ri===iBody||ri===iTong;
+    for(let ci=0; ci<W; ci++){
+      const c=cell(ri,ci);
+      c.s={ border:BD, font:{...TNR(10), bold:!!(isHead||isSum)},
+        alignment: isHead ? {horizontal:'center', vertical:'center', wrapText:true}
+          : {horizontal: ci===0?'center':(c.t==='n'?'right':'left'), vertical:'center', wrapText:ci===1} };
+    }
+  }
+  const setS=(ri,ci,s)=>{ cell(ri,ci).s=s; };
+  setS(0,0,{font:{...TNR(),bold:true}}); setS(1,0,{font:{...TNR(),bold:true}});
+  setS(0,1,{font:TNR()}); setS(1,1,{font:TNR()});
+  setS(0,4,{font:{...TNR(),bold:true}, alignment:{horizontal:'center'}});
+  setS(1,4,{font:{...TNR(),bold:true}, alignment:{horizontal:'center'}});
+  setS(0,8,{font:{...TNR(),bold:true}, alignment:{horizontal:'center'}});
+  setS(iTitle,0,{font:{...TNR(13),bold:true}, alignment:{horizontal:'center', vertical:'center', wrapText:true}});
+  setS(iTitle+1,0,{font:TNR(), alignment:{horizontal:'center'}});
+  setS(iTitle+2,8,{font:{...TNR(10),italic:true}, alignment:{horizontal:'right'}});
+  setS(iDN,0,{font:TNR(), alignment:{vertical:'center', wrapText:true}});
+  setS(iSig,6,{font:{...TNR(),italic:true}, alignment:{horizontal:'center'}});
+  [0,3,6].forEach(c=>{
+    setS(iSig+1,c,{font:{...TNR(),bold:true}, alignment:{horizontal:'center'}});
+    setS(iSig+2,c,{font:{...TNR(10),italic:true}, alignment:{horizontal:'center'}});
+  });
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'BaoCao_02');
+  XLSX.writeFile(wb, `BH02_${m.macskcb||'CSKCB'}_Q${m.quy??'X'}_${m.nam??''}.xlsx`);
+}
+
+/* ---- Đối chiếu BH02 tổng hợp với BaoCao_02 xuất từ HIS ---- */
+let fileBh02His=null;
+
+function parseBaoCao02His(wb){
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+  let hIdx=-1;
+  for(let i=0;i<Math.min(rows.length,20);i++){
+    const lo=(rows[i]||[]).map(low);
+    if(lo.some(c=>c.includes('số lượt'))&&lo.some(c=>c.includes('chỉ tiêu'))){ hIdx=i; break; }
+  }
+  if(hIdx<0) throw new Error('không đúng định dạng BaoCao_02: không thấy tiêu đề "Chỉ tiêu", "Số lượt".');
+  const H=rows[hIdx].map(low);
+  const find=(...subs)=>{ for(let j=0;j<H.length;j++){ if(H[j]&&subs.every(s=>H[j].includes(s))) return j; } return -1; };
+  const col={stt:find('stt'), ct:find('chỉ tiêu'), luot:find('số lượt'), tong:find('tổng chi'),
+    bh:find('chi phí khám','bảo hiểm y tế'), bhtt:find('đề nghị quỹ'), cct:find('cùng chi trả'),
+    nk:find('viện trợ'), bntt:find('tự trả')};
+  if(col.luot<0||col.bhtt<0) throw new Error('BaoCao_02: thiếu cột Số lượt / Đề nghị quỹ.');
+  const val=(r,c)=>num(r[c])||0;
+  const take=r=>({luot:val(r,col.luot), tong:val(r,col.tong), bh:val(r,col.bh), bhtt:val(r,col.bhtt),
+    cct:val(r,col.cct), nk:val(r,col.nk), bntt:val(r,col.bntt)});
+  const out={quy:null, nam:null, muc:{}, grand:null};
+  for(let i=0;i<hIdx;i++){
+    const line=(rows[i]||[]).map(c=>String(c??'')).join(' ');
+    const m=line.match(/quý\s*(\d).*?năm\s*(\d{4})/i);
+    if(m){ out.quy=+m[1]; out.nam=+m[2]; }
+  }
+  for(let i=hIdx+1;i<rows.length;i++){
+    const r=rows[i]; if(!r) continue;
+    const stt=String(r[col.stt]??'').trim();
+    const ct=low(r[col.ct]);
+    if(/^[1-4]$/.test(stt)) out.muc[+stt]=take(r);
+    else if(ct.includes('tổng cộng')) out.grand=take(r);
+  }
+  if(!out.grand&&!Object.keys(out.muc).length) throw new Error('BaoCao_02: không đọc được dòng chỉ tiêu 1-4 / Tổng cộng.');
+  return out;
+}
+
+const BH02_CMP_FIELDS=[['luot','Số lượt (1)'],['tong','Tổng chi (2)'],['bh','CP BHYT (3)'],
+  ['bhtt','Đề nghị quỹ (4)'],['cct','Cùng chi trả (5)'],['nk','Viện trợ (6)'],['bntt','BN tự trả (7)']];
+
+function renderBh02Compare(m, his){
+  document.getElementById('bh02CmpWrap').style.display='block';
+  const R=v=>Math.round(v||0); // TT12: so sánh sau khi làm tròn đến đồng
+  const Z={luot:0,tong:0,bh:0,bhtt:0,cct:0,nk:0,bntt:0};
+  const pairs=m.muc.map(x=>({label:`${x.stt}. ${x.label}`, port:x.t, his:his.muc[x.stt]||Z}));
+  pairs.push({label:'Tổng cộng (A+B+...)', port:m.grand, his:his.grand||Z});
+  let nBad=0;
+  const rowsHtml=pairs.map(p=>{
+    const cells=(t,other)=>BH02_CMP_FIELDS.map(([f])=>{
+      const bad=R(t[f])!==R(other[f]); if(bad) nBad++;
+      return `<td class="num"${bad?' style="background:var(--err-bg);color:var(--err);font-weight:700"':''}>${f==='luot'?R(t[f]).toLocaleString('vi-VN'):fmtVND(t[f])}</td>`;
+    }).join('');
+    return `<tr><td rowspan="2">${esc(p.label)}</td><td>HIS</td>${cells(p.his,p.port)}</tr>`+
+      `<tr><td>Cổng BHXH</td>${cells(p.port,p.his)}</tr>`;
+  }).join('');
+  document.getElementById('tblBh02Cmp').innerHTML=
+    '<tr><th>Chỉ tiêu</th><th>Nguồn</th>'+BH02_CMP_FIELDS.map(([,l])=>`<th>${l}</th>`).join('')+'</tr>'+rowsHtml;
+  nBad=nBad/2; // mỗi ô lệch được đếm ở cả 2 dòng
+  const note=document.getElementById('bh02CmpNote');
+  const kyLech=(his.quy&&m.quy&&(his.quy!==m.quy||his.nam!==m.nam))
+    ? ` ⚠ Kỳ báo cáo KHÁC nhau: HIS quý ${his.quy}/${his.nam} ↔ cổng quý ${m.quy}/${m.nam}.` : '';
+  note.innerHTML = (nBad===0
+    ? '✓ BaoCao_02 của HIS <b>khớp hoàn toàn</b> với số tổng hợp từ cổng BHXH (so sánh sau khi làm tròn đến đồng theo TT12).'
+    : `⚠ Có <b>${nBad}</b> ô lệch giữa HIS và cổng BHXH (tô đỏ) — kiểm tra lại dữ liệu các tháng tương ứng.`)+kyLech;
+  return nBad;
+}
+
+/* ---- BH02 UI wiring ---- */
+function bh02AddFiles(list){
+  for(const f of list){
+    if(!bh02Files.some(x=>x.name===f.name&&x.size===f.size)) bh02Files.push(f);
+  }
+  const fi=document.getElementById('fiBh02');
+  if(bh02Files.length){
+    fi.style.display='block';
+    fi.textContent='✓ '+bh02Files.length+' file: '+bh02Files.map(f=>f.name).join(' · ');
+    document.getElementById('dzBh02').classList.add('loaded');
+  }
+  document.getElementById('btnBh02').disabled=!bh02Files.length;
+}
+(function(){
+  const dz=document.getElementById('dzBh02'), input=document.getElementById('inBh02');
+  dz.addEventListener('click', ()=>input.click());
+  input.addEventListener('change', e=>{ bh02AddFiles(e.target.files); input.value=''; });
+  dz.addEventListener('dragover', e=>{e.preventDefault(); dz.classList.add('dragover');});
+  dz.addEventListener('dragleave', ()=>dz.classList.remove('dragover'));
+  dz.addEventListener('drop', e=>{ e.preventDefault(); dz.classList.remove('dragover'); bh02AddFiles(e.dataTransfer.files); });
+})();
+wireDZ(document.getElementById('dzBh02His'), document.getElementById('inBh02His'), 'fiBh02His',
+  f=>{ fileBh02His=f; showFile('fiBh02His','dzBh02His',f); });
+document.getElementById('btnBh02Clear').addEventListener('click', ()=>{
+  bh02Files=[]; bh02Model=null; fileBh02His=null;
+  for(const [fi,dz] of [['fiBh02','dzBh02'],['fiBh02His','dzBh02His']]){
+    const e=document.getElementById(fi); e.style.display='none'; e.textContent='';
+    document.getElementById(dz).classList.remove('loaded');
+  }
+  document.getElementById('btnBh02').disabled=true;
+  document.getElementById('bh02Area').style.display='none';
+});
+document.getElementById('btnBh02').addEventListener('click', async ()=>{
+  const st=document.getElementById('status');
+  st.className=''; st.textContent='Đang đọc '+bh02Files.length+' file và tổng hợp BH02…';
+  try{
+    const fileRecs=[];
+    for(const f of bh02Files){
+      try{ fileRecs.push({name:f.name, recs:parseMau01BH(await readWB(f), f.name)}); }
+      catch(err){ throw new Error(`file "${f.name}": ${err.message}`); }
+    }
+    bh02Model=buildBH02(fileRecs, document.getElementById('bh02Ten').value.trim());
+    renderBH02(bh02Model);
+    let cmpMsg='';
+    if(fileBh02His){
+      const hisQt=parseBaoCao02His(await readWB(fileBh02His));
+      const nBad=renderBh02Compare(bh02Model, hisQt);
+      cmpMsg = nBad===0 ? ' · KHỚP BaoCao_02 HIS' : ` · LỆCH ${nBad} ô so với BaoCao_02 HIS`;
+    } else {
+      document.getElementById('bh02CmpWrap').style.display='none';
+    }
+    st.textContent=`Đã tổng hợp BH02 quý ${bh02Model.quy??'?'}/${bh02Model.nam??'?'}: ${bh02Model.grand.luot.toLocaleString('vi-VN')} lượt từ ${bh02Files.length} file${bh02Model.warn.length?` · ${bh02Model.warn.length} cảnh báo`:''}${cmpMsg}.`;
+  }catch(err){ st.className='err'; st.textContent='Lỗi BH02: '+err.message; }
+});
+document.getElementById('btnBH02Xlsx').addEventListener('click', ()=>{
+  if(bh02Model) exportBH02Xlsx(bh02Model);
+});
+
+/* ---------- Phiên bản & In trực tiếp ---------- */
+const APP_VERSION='v2.1 · cập nhật 08/07/2026';
+document.getElementById('appVer').textContent=APP_VERSION;
+function printWith(cls){
+  document.body.classList.add(cls);
+  const done=()=>{ document.body.classList.remove(cls); window.removeEventListener('afterprint',done); };
+  window.addEventListener('afterprint',done);
+  window.print();
+}
+document.getElementById('btnBH01Print').addEventListener('click',()=>printWith('p-bh01'));
+document.getElementById('btnBH02Print').addEventListener('click',()=>printWith('p-bh02'));
+
+/* ---------- Đánh dấu "đã xử lý" (lưu trên máy - localStorage) ---------- */
+function loadDone(){ try{ return JSON.parse(localStorage.getItem('bh_done_v1')||'{}'); }catch(e){ return {}; } }
+function saveDone(m){ try{ localStorage.setItem('bh_done_v1', JSON.stringify(m)); }catch(e){} }
+
+/* ---------- Mẫu 03/BH: bản nháp Biên bản giám định (file Word) ---------- */
+function exportMau03(m){
+  const ky=`quý ${m.quy??'…'} năm ${m.nam??'…'}`;
+  const dots=n=>'.'.repeat(n||40);
+  const html=`<html><head><meta charset="utf-8"><style>
+    body{font-family:"Times New Roman"; font-size:13pt; line-height:1.5;}
+    .c{text-align:center;} .b{font-weight:bold;} .i{font-style:italic;}
+    p{margin:6pt 0;}
+  </style></head><body>
+  <table style="width:100%"><tr>
+    <td style="width:35%"></td>
+    <td class="c"><span class="b">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</span><br><span class="b">Độc lập - Tự do - Hạnh phúc</span><br>---------------</td>
+    <td style="width:12%; vertical-align:top" class="b">Mẫu số 03/BH</td>
+  </tr></table>
+  <p class="c b" style="font-size:14pt; margin-top:14pt">BIÊN BẢN<br>GIÁM ĐỊNH CHI PHÍ KHÁM BỆNH, CHỮA BỆNH BẢO HIỂM Y TẾ</p>
+  <p class="c">${esc(ky.charAt(0).toUpperCase()+ky.slice(1))}</p>
+  <p class="c">Tại ${esc(m.ten||dots(50))}</p>
+  <p class="c">Số: ${dots(20)}/BB-BHXH</p>
+  <p class="i">Căn cứ Luật Bảo hiểm y tế số 25/2008/QH12 được sửa đổi, bổ sung bởi Luật số 46/2014/QH13 và Luật số 51/2024/QH15;</p>
+  <p class="i">Căn cứ Nghị định số 188/2025/NĐ-CP ngày 01 tháng 7 năm 2025 của Chính phủ quy định chi tiết và hướng dẫn thi hành một số điều của Luật Bảo hiểm y tế;</p>
+  <p class="i">Căn cứ Thông tư số 12/2026/TT-BTC ngày 10 tháng 02 năm 2026 của Bộ trưởng Bộ Tài chính;</p>
+  <p class="i">Căn cứ Hợp đồng khám bệnh, chữa bệnh bảo hiểm y tế năm ${m.nam??dots(8)} số ${dots(12)}/HĐKCB-BHYT và văn bản thông báo số ${dots(12)}/TB-BHXH của Bảo hiểm xã hội ${dots(20)};</p>
+  <p><span class="b">Chúng tôi gồm:</span></p>
+  <p><span class="b">Bên A</span> (cơ quan bảo hiểm xã hội): ${dots(60)}</p>
+  <p>- Ông (Bà) ${dots(50)} Chức vụ: ${dots(30)}</p>
+  <p>- Ông (Bà) ${dots(50)} Chức vụ: ${dots(30)}</p>
+  <p><span class="b">Bên B</span>: <span class="b">${esc(m.ten||dots(50))}</span> — Mã đơn vị: ${esc(m.macskcb||dots(10))}</p>
+  <p>- Ông (Bà) ${dots(50)} Chức vụ: ${dots(30)}</p>
+  <p>- Ông (Bà) ${dots(50)} Chức vụ: ${dots(30)}</p>
+  <p>Lập Biên bản giám định chi phí khám bệnh, chữa bệnh bảo hiểm y tế ${esc(ky)} như sau:</p>
+  <p class="b">I. Hồ sơ bên B đề nghị thanh toán</p>
+  <p>1. Hồ sơ đã tiếp nhận tại Cổng tiếp nhận dữ liệu: <span class="b">${m.grand.luot.toLocaleString('vi-VN')}</span> hồ sơ.</p>
+  <p>Số tiền đề nghị thanh toán bảo hiểm y tế: <span class="b">${fmtVND(m.grand.bhtt)}</span> đồng <span class="i">(bằng chữ: ${esc(docTienBangChu(m.grand.bhtt))})</span>.</p>
+  <p>Trong đó, hồ sơ bên B đã điều chỉnh: ${dots(30)}; số tiền đề nghị thanh toán sau điều chỉnh: ${dots(30)}</p>
+  <p>2. Hồ sơ Cổng tiếp nhận dữ liệu không tiếp nhận: ${dots(20)}; số tiền đề nghị thanh toán bảo hiểm y tế: ${dots(30)}</p>
+  <p class="b">II. Nội dung đã thực hiện</p>
+  <p>1. Các thay đổi trong thời gian thực hiện hợp đồng: ${dots(80)}</p>
+  <p>2. Nội dung và kết quả giám định chi phí khám bệnh, chữa bệnh bảo hiểm y tế:</p>
+  <p>a) Cơ sở khám bệnh, chữa bệnh: ${dots(80)}</p>
+  <p>b) Cơ quan bảo hiểm xã hội: ${dots(80)}</p>
+  <p class="b">III. Kết luận</p>
+  <p>${dots(100)}</p>
+  <p class="i c" style="margin-top:16pt">Biên bản được lập thành 02 bản, mỗi bên giữ 01 bản có giá trị pháp lý như nhau./.</p>
+  <table style="width:100%; margin-top:20pt; text-align:center"><tr>
+    <td class="b">ĐẠI DIỆN BÊN A<br><span class="i" style="font-weight:normal">(Ký, họ tên, đóng dấu)</span></td>
+    <td class="b">ĐẠI DIỆN BÊN B<br><span class="i" style="font-weight:normal">(Ký, họ tên, đóng dấu)</span></td>
+  </tr></table>
+  </body></html>`;
+  const blob=new Blob(['﻿'+html],{type:'application/msword'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`Mau03_BH_Q${m.quy??'X'}_${m.nam??''}_nhap.doc`;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+}
+document.getElementById('btnMau03').addEventListener('click',()=>{
+  const st=document.getElementById('status');
+  if(!bh02Model){ st.className='err'; st.textContent='Hãy bấm "Tổng hợp BH02" trước khi xuất Mẫu 03/BH.'; return; }
+  exportMau03(bh02Model);
+  st.className=''; st.textContent='Đã tải bản nháp Mẫu 03/BH (Word) — mở bằng Word để hoàn thiện các phần điền tay.';
+});
+
+/* ---------- Run ---------- */
+document.getElementById('btnRun').addEventListener('click', async ()=>{
+  const st=document.getElementById('status');
+  st.className=''; st.textContent='Đang đọc và đối chiếu…';
+  document.getElementById('btnRun').disabled=true;
+  try{
+    const [wbH,wbB]=await Promise.all([readWB(fileHis), readWB(fileBhxh)]);
+    const his=parseHis(wbH), bhxh=parseBhxh(wbB);
+    result=reconcile(his,bhxh);
+    render(result);
+    st.textContent=`Xong: ${result.matched.length}/${result.nHis} hồ sơ ghép khớp.`;
+    document.getElementById('resultArea').scrollIntoView({behavior:'smooth'});
+  }catch(err){
+    st.className='err'; st.textContent='Lỗi: '+err.message;
+  }finally{
+    document.getElementById('btnRun').disabled=false;
+  }
+});
+document.getElementById('btnExport').addEventListener('click', ()=>{ if(result) exportXlsx(result); });
+</script>
+</body>
+</html>
