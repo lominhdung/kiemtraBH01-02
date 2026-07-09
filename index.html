@@ -78,6 +78,20 @@
   .help table{margin:10px 0;}
   .help td:first-child{white-space:nowrap; font-weight:600; color:var(--navy);}
   .help .b{display:inline-block; background:#E0F3F3; color:var(--teal-dark); font-size:12px; font-weight:700; padding:1px 9px; border-radius:11px;}
+  tr.done td{opacity:.45;}
+  tr.done td:last-child, tr.done td.chkcell{opacity:1;}
+  @media print{
+    @page{size:A4 landscape; margin:10mm;}
+    header,#tabNav,.stepline,.drop-row,footer,.actions,.note,#dqArea{display:none!important;}
+    main{max-width:none; padding:0;}
+    .card{border:none; padding:0; margin:0;}
+    .scroll{max-height:none!important; overflow:visible!important;}
+    #tblBH01 th{position:static!important;}
+    body.p-bh01 #resultArea,body.p-bh01 #convertArea,body.p-bh01 #tabQuy,body.p-bh01 #tabHelp{display:none!important;}
+    body.p-bh01 #bh01Area .card>h2{display:none!important;}
+    body.p-bh02 #tabThang,body.p-bh02 #tabHelp{display:none!important;}
+    body.p-bh02 #cardBh02>h2,body.p-bh02 #bh02MonthsWrap,body.p-bh02 #bh02CmpWrap{display:none!important;}
+  }
   #status{font-size:13.5px; color:var(--muted);}
   #status.err{color:var(--err); font-weight:600;}
 
@@ -148,6 +162,14 @@
     </div>
   </div>
 
+  <div id="dqArea" style="display:none; margin-top:14px">
+    <div class="card">
+      <h2><span class="n">✓</span>Kiểm tra chất lượng dữ liệu File 1 <span style="font-weight:400;color:var(--muted);font-size:12.5px">(tự động chạy khi nạp file — phát hiện hồ sơ trùng và lỗi trước khi đẩy cổng)</span></h2>
+      <div class="summary-grid" id="dqGrid"></div>
+      <div class="scroll" id="dqDetailWrap" style="margin-top:12px"><table id="tblDQ"></table></div>
+    </div>
+  </div>
+
   <div class="stepline" style="margin-top:16px"><span class="stepnum">2</span>Thao tác — đối chiếu đã tự chạy khi đủ 2 file, các nút dưới dùng khi cần chạy lại hoặc dùng tính năng khác</div>
   <div class="actions">
     <button id="btnRun" disabled title="So khớp từng hồ sơ giữa File 1 (HIS) và File 2 (BHXH)">Đối chiếu lại</button>
@@ -162,6 +184,7 @@
       <h2><span class="n">≣</span>Báo cáo Mẫu số 01/BH <span id="bh01Sub" style="font-weight:400;color:var(--muted);font-size:12.5px"></span></h2>
       <div class="actions" style="margin:0 0 12px">
         <button id="btnBH01Xlsx">Xuất Excel BH01</button>
+        <button id="btnBH01Print" class="btn-mini" title="In bản trình ký trực tiếp từ trình duyệt (khổ ngang)">🖨 In BH01</button>
         <span class="note" id="bh01Note" style="margin:0"></span>
       </div>
       <div id="bh01Head"></div>
@@ -253,15 +276,21 @@
       <div id="bh02Head"></div>
       <div class="scroll"><table id="tblBH02"></table></div>
       <div id="bh02DeNghi" style="font-size:13px;margin-top:10px"></div>
+      <div id="bh02MonthsWrap">
       <h2 style="margin-top:16px;font-size:14px;color:var(--navy)">Kiểm tra dữ liệu các tháng</h2>
       <div class="scroll"><table id="tblBh02Months"></table></div>
       <div class="note" id="bh02Note"></div>
+      </div>
       <div id="bh02CmpWrap" style="display:none">
         <h2 style="margin-top:16px;font-size:14px;color:var(--navy)">Đối chiếu BH02: HIS ↔ tổng hợp từ cổng BHXH</h2>
         <div class="scroll"><table id="tblBh02Cmp"></table></div>
         <div class="note" id="bh02CmpNote"></div>
       </div>
-      <div class="actions" style="margin-top:12px"><button id="btnBH02Xlsx">Xuất Excel BH02</button></div>
+      <div class="actions" style="margin-top:12px">
+        <button id="btnBH02Xlsx">Xuất Excel BH02</button>
+        <button id="btnBH02Print" class="btn-mini" title="In bản trình ký trực tiếp từ trình duyệt (khổ ngang)">🖨 In BH02</button>
+        <button id="btnMau03" class="btn-mini" title="Tạo bản nháp Biên bản giám định (Mẫu 03/BH) dạng Word, điền sẵn số liệu quý">📄 Xuất Mẫu 03/BH (nháp Word)</button>
+      </div>
       <div class="bh01-sign">
         <div><br><b>NGƯỜI LẬP BIỂU</b><br>(Ký, họ tên)</div>
         <div><br><b>KẾ TOÁN TRƯỞNG</b><br>(Ký, họ tên)</div>
@@ -281,6 +310,8 @@
         <tr><td>Chuyển đổi MAU01_BH</td><td>Chỉ cần File 1</td><td>File BaoCao_MAU01_BH đẩy lên cổng (đúng TT12, tự áp sửa đổi)</td></tr>
         <tr><td>Xem / xuất BH01</td><td>Chỉ cần File 1</td><td>Mẫu số 01/BH xem trên web + Excel chuẩn có kẻ viền</td></tr>
         <tr><td>Tổng hợp BH02 quý</td><td>3 file Mau01BH các tháng (cổng)</td><td>Mẫu số 02/BH + đối chiếu với BaoCao_02 của HIS</td></tr>
+        <tr><td>Kiểm tra chất lượng dữ liệu</td><td>Tự chạy khi nạp File 1</td><td>Cảnh báo hồ sơ trùng/chồng lấn, ngày sai, thẻ sai cấu trúc, lệch cân đối tiền</td></tr>
+        <tr><td>In trình ký &amp; Mẫu 03/BH</td><td>Sau khi có BH01 / BH02</td><td>Nút 🖨 In (khổ ngang) và bản nháp Word Biên bản giám định điền sẵn số liệu</td></tr>
       </table></div>
 
       <h3>📋 Quy trình hằng tháng (tab "Đối chiếu tháng")</h3>
@@ -295,6 +326,7 @@
             <li><span class="b">BHXH ← theo HIS</span>: ghi giá trị HIS vào file TKDLXML (khi cổng sai — cần đẩy lại XML).</li>
             <li><span class="b">Nhập tay</span>: gõ giá trị đúng, áp cho cả hai file.</li>
             <li>Khi sửa cột tiền, tool tự cân đối lại: (3)=(4)+(5), (2)=(3)+(6)+(7) và tính lại dòng tổng.</li>
+            <li>Cột <b>"Xong"</b>: tick vào hồ sơ đã xử lý — được lưu trên máy, lần sau mở lại vẫn nhớ (hữu ích khi xử lý rải rác nhiều ngày).</li>
           </ul></li>
         <li><b>Tạo file gửi cổng</b>: bấm "Chuyển đổi sang MAU01_BH (TT12)" — file tải về đã áp mọi sửa đổi đã chọn, upload thẳng lên cổng.</li>
       </ol>
@@ -324,7 +356,7 @@
     </div>
   </div>
 </main>
-<footer>Tool nội bộ phòng CNTT · So khớp theo Mã thẻ BHYT + thời điểm vào viện (đến phút) · Sai số tiền cho phép ±0,5 đ</footer>
+<footer>Tool nội bộ phòng CNTT · So khớp theo Mã thẻ BHYT + thời điểm vào viện (đến phút) · Sai số tiền cho phép ±0,5 đ · <b id="appVer"></b></footer>
 
 <script>
 "use strict";
@@ -342,8 +374,64 @@ function wireDZ(dz, input, fi, setter){
   });
 }
 let autoNeeded=false; // đủ 2 file → tự chạy đối chiếu, không cần bấm nút
-function setHis(f){ fileHis=f; autoNeeded=true; showFile('fiHis','dzHis',f); check(); }
+function setHis(f){ fileHis=f; autoNeeded=true; showFile('fiHis','dzHis',f); check(); runDQ(); }
 function setBhxh(f){ fileBhxh=f; autoNeeded=true; showFile('fiBhxh','dzBhxh',f); check(); }
+
+/* ---------- Kiểm tra chất lượng dữ liệu File 1 (chạy tự động khi nạp) ---------- */
+async function runDQ(){
+  const area=document.getElementById('dqArea');
+  try{
+    const his=parseHis(await readWB(fileHis));
+    // 1) Hồ sơ trùng / chồng lấn thời gian điều trị theo mã thẻ
+    const byCard=new Map();
+    his.forEach(h=>{ const a=byCard.get(h.card); a?a.push(h):byCard.set(h.card,[h]); });
+    const dup=[];
+    byCard.forEach(list=>{
+      if(list.length<2) return;
+      for(let i=0;i<list.length;i++) for(let j=i+1;j<list.length;j++){
+        const a=list[i], b=list[j];
+        if(!a.din||!b.din) continue;
+        const aEnd=a.dout||a.din, bEnd=b.dout||b.din;
+        if(a.din<=bEnd&&b.din<=aEnd) dup.push([a,b]);
+      }
+    });
+    // 2) Pre-flight từng hồ sơ (bắt lỗi trước khi cổng/giám định bắt)
+    const rowErr=[];
+    his.forEach(h=>{
+      const e=[];
+      if(h.dout&&h.din&&h.dout<h.din) e.push('Ngày ra TRƯỚC ngày vào');
+      if(h.vnt&&(h.vnt<h.din||(h.dout&&h.vnt>h.dout))) e.push('Ngày vào nội trú ngoài khoảng vào–ra');
+      if(h.kcb==='03'&&!h.vnt) e.push('Nội trú nhưng thiếu Ngày vào nội trú');
+      if(h.vnt&&(h.kcb==='01'||h.kcb==='02')) e.push('Loại KCB ngoại trú nhưng CÓ Ngày vào nội trú — mâu thuẫn phân loại, cổng sẽ báo "đối chiếu lệch"');
+      if(!/^[A-Z]{2}\d{13}$/.test(h.card)) e.push('Mã thẻ không đúng cấu trúc 2 chữ + 13 số');
+      if(h.icd&&!/^[A-TV-Z]\d{2}(\.\d{1,2})?$/i.test(h.icd)) e.push('Mã ICD-10 bất thường: '+h.icd);
+      if(['tong','bhyt','bhtt','cct','tutra','vientro'].some(f=>(h[f]||0)<0)) e.push('Có số tiền âm');
+      if(Math.abs((h.tong||0)-((h.bhyt||0)+(h.vientro||0)+(h.tutra||0)))>0.5) e.push('Lệch cân đối: Tổng chi (2) ≠ (3)+(6)+(7)');
+      if(Math.abs((h.bhyt||0)-((h.bhtt||0)+(h.cct||0)))>0.5) e.push('Lệch cân đối: CP BHYT (3) ≠ (4)+(5)');
+      if(e.length) rowErr.push({h,e});
+    });
+    area.style.display='block';
+    document.getElementById('dqGrid').innerHTML=[
+      stat(his.length,'Hồ sơ trong file'),
+      stat(dup.length,'Cặp hồ sơ trùng/chồng lấn', dup.length?'err':'ok'),
+      stat(rowErr.length,'Hồ sơ có lỗi dữ liệu', rowErr.length?'err':'ok'),
+    ].join('');
+    const td=document.getElementById('tblDQ');
+    if(!dup.length&&!rowErr.length){
+      td.innerHTML='<tr><td style="color:var(--ok);font-weight:600">✓ Không phát hiện hồ sơ trùng hay lỗi dữ liệu — file sẵn sàng đối chiếu / đẩy cổng.</td></tr>';
+    }else{
+      const rows=['<tr><th>Loại</th><th>Mã thẻ</th><th>Họ tên</th><th>Chi tiết</th></tr>'];
+      dup.slice(0,30).forEach(([a,b])=>rows.push(
+        `<tr><td><span class="badge b-err">Trùng/chồng lấn</span></td><td>${esc(a.card)}</td><td>${esc(a.name)}</td>`+
+        `<td>Hồ sơ 1: ${fmtDT(a.din)} → ${fmtDT(a.dout)} (${fmtVND(a.tong)}đ) · Hồ sơ 2: ${fmtDT(b.din)} → ${fmtDT(b.dout)} (${fmtVND(b.tong)}đ) — kiểm tra trên HIS trước khi đẩy cổng!</td></tr>`));
+      rowErr.slice(0,30).forEach(({h,e})=>rows.push(
+        `<tr><td><span class="badge b-warn">Lỗi dữ liệu</span></td><td>${esc(h.card)}</td><td>${esc(h.name)}</td><td>${esc(e.join(' · '))} (vào ${fmtDT(h.din)})</td></tr>`));
+      const more=(dup.length>30?dup.length-30:0)+(rowErr.length>30?rowErr.length-30:0);
+      if(more) rows.push(`<tr><td colspan="4" style="color:var(--muted)">… và ${more} dòng khác.</td></tr>`);
+      td.innerHTML=rows.join('');
+    }
+  }catch(err){ area.style.display='none'; } // file lỗi định dạng sẽ được báo khi thao tác chính
+}
 function showFile(fiId,dzId,f){
   const fi=document.getElementById(fiId);
   fi.textContent='✓ '+f.name; fi.style.display='block';
@@ -657,16 +745,20 @@ function render(r){
   const cd=document.getElementById('cardDetail'), td=document.getElementById('tblDetail');
   if(r.detail.length){
     cd.style.display='block';
-    td.innerHTML='<tr><th>#</th><th>Mã thẻ</th><th>Họ tên (HIS)</th><th>Ngày vào</th><th>Trường lệch</th><th>Giá trị HIS</th><th>Giá trị BHXH</th><th>Loại</th><th>Phương án sửa</th></tr>'+
+    const doneSet=loadDone();
+    const nDone=r.detail.filter(d=>doneSet[d.p.h.card+'|'+keyMin(d.p.h.din)]).length;
+    td.innerHTML=`<tr><th title="Đánh dấu hồ sơ đã xử lý — lưu trên máy, lần sau mở lại vẫn nhớ">Xong (${nDone}/${r.detail.length})</th><th>#</th><th>Mã thẻ</th><th>Họ tên (HIS)</th><th>Ngày vào</th><th>Trường lệch</th><th>Giá trị HIS</th><th>Giá trị BHXH</th><th>Loại</th><th>Phương án sửa</th></tr>`+
       r.detail.flatMap((d,i)=>d.issues.map((is,j)=>{
-        const key=esc(d.p.h.card+'|'+keyMin(d.p.h.din));
+        const gkey=d.p.h.card+'|'+keyMin(d.p.h.din);
+        const key=esc(gkey);
+        const isDone=!!doneSet[gkey];
         const fixCell=`<td><select class="fixsel" data-k="${key}" data-f="${is.id}">`+
           `<option value="skip">Không sửa</option>`+
           `<option value="bhxh">HIS ← theo BHXH</option>`+
           `<option value="his">BHXH ← theo HIS</option>`+
           `<option value="custom">Nhập tay (cả 2)</option>`+
           `</select><input class="fixinp" placeholder="Giá trị đúng…" value="${esc(is.bhxh)}"></td>`;
-        return `<tr>${j===0?`<td rowspan="${d.issues.length}">${i+1}</td><td rowspan="${d.issues.length}">${d.p.h.card}</td><td rowspan="${d.issues.length}">${esc(d.p.h.name)}</td><td rowspan="${d.issues.length}">${fmtDT(d.p.h.din)}</td>`:''}<td>${is.field}</td><td>${esc(is.his)}</td><td>${esc(is.bhxh)}</td><td>${is.tone?'<span class="badge b-warn">Lệch dấu</span>':'<span class="badge b-err">Lệch nội dung</span>'}</td>${fixCell}</tr>`;
+        return `<tr data-g="${key}"${isDone?' class="done"':''}>${j===0?`<td class="chkcell" rowspan="${d.issues.length}"><input type="checkbox" class="donechk" data-k="${key}"${isDone?' checked':''}></td><td rowspan="${d.issues.length}">${i+1}</td><td rowspan="${d.issues.length}">${d.p.h.card}</td><td rowspan="${d.issues.length}">${esc(d.p.h.name)}</td><td rowspan="${d.issues.length}">${fmtDT(d.p.h.din)}</td>`:''}<td>${is.field}</td><td>${esc(is.his)}</td><td>${esc(is.bhxh)}</td><td>${is.tone?'<span class="badge b-warn">Lệch dấu</span>':'<span class="badge b-err">Lệch nội dung</span>'}</td>${fixCell}</tr>`;
       })).join('');
     document.getElementById('fixBar').style.display='flex';
   } else {
@@ -932,6 +1024,13 @@ document.getElementById('tblDetail').addEventListener('change',e=>{
   if(e.target.classList.contains('fixsel')){
     const inp=e.target.closest('td').querySelector('.fixinp');
     if(inp) inp.style.display = e.target.value==='custom' ? 'block' : 'none';
+  }
+  if(e.target.classList.contains('donechk')){
+    const k=e.target.dataset.k, mDone=loadDone();
+    if(e.target.checked) mDone[k]=1; else delete mDone[k];
+    saveDone(mDone);
+    document.querySelectorAll(`#tblDetail tr[data-g="${CSS.escape(k)}"]`)
+      .forEach(tr=>tr.classList.toggle('done', e.target.checked));
   }
 });
 document.querySelectorAll('[data-fixall]').forEach(btn=>btn.addEventListener('click',()=>{
@@ -1199,7 +1298,8 @@ function parseMau01BH(wb, fname){
     const find=n=>H.findIndex(h=>h.includes(n));
     const col={the:find('mã thẻ'), kcb:find('loại kcb'), bh:find('tổng chi bh'), tong:find('tổng chi bv'),
       cct:find('bệnh nhân cct'), nk:find('nguồn khác'), bhtt:find('bảo hiểm tt'), bntt:find('bệnh nhân tt'),
-      ma:find('mã cơ sở'), dout:find('ngày ra'), denghi:find('đề nghị tt')};
+      ma:find('mã cơ sở'), dout:find('ngày ra'), denghi:find('đề nghị tt'),
+      name:find('họ'), tthai:find('trạng thái đối chiếu')};
     if(col.tong<0||col.bhtt<0) throw new Error('thiếu cột "Tổng chi BV" / "Bảo hiểm TT".');
     // Kỳ báo cáo lấy từ tên file Mau01BH_<mã>_yyyymm; dự phòng: tháng của "Ngày ra"
     let fNam=null, fThang=null;
@@ -1215,7 +1315,8 @@ function parseMau01BH(wb, fname){
       if(nam==null){ const d=toDate(r[col.dout]); if(d){ nam=d.getFullYear(); thang=d.getMonth()+1; } }
       out.push({kcb, tong:num(r[col.tong])||0, bh:num(r[col.bh])||0, bhtt:num(r[col.bhtt])||0,
         cct:num(r[col.cct])||0, bntt:num(r[col.bntt])||0, nk:num(r[col.nk])||0,
-        ma:String(r[col.ma]??'').trim(), nam, thang, dn:low(r[col.denghi])});
+        ma:String(r[col.ma]??'').trim(), nam, thang, dn:low(r[col.denghi]),
+        card, name:String(r[col.name]??'').trim(), tthai:low(r[col.tthai])});
     }
   }
   if(!out.length) throw new Error('không trích được hồ sơ nào.');
@@ -1289,6 +1390,11 @@ function buildBH02(fileRecs, ten){
   if(other.length) warn.push(`${other.length} hồ sơ có Loại KCB/MA_LOAI_KCB ngoài danh mục QĐ 824 (${[...new Set(other.map(x=>x.kcb))].join(', ')}) — không được tính vào 4 mục nhưng VẪN tính vào tổng cộng.`);
   const chuaDN=all.filter(x=>x.dn&&x.dn.includes('chưa')).length;
   if(chuaDN) warn.push(`${chuaDN} hồ sơ đang ở trạng thái "Chưa đề nghị" trên cổng — vẫn được tính vào BH02, cần đề nghị TT trước khi gửi quyết toán.`);
+  const lech=all.filter(x=>x.tthai&&x.tthai.includes('lệch'));
+  if(lech.length){
+    const ds=lech.slice(0,10).map(x=>x.card+(x.name?` (${x.name})`:'')).join('; ');
+    warn.push(`${lech.length} hồ sơ bị cổng đánh dấu "Đối chiếu lệch" (cột Trạng thái đối chiếu) — phải kiểm tra/sửa trước khi đề nghị TT & quyết toán: ${ds}${lech.length>10?' …':''}.`);
+  }
   const mas=[...new Set(all.map(x=>x.ma).filter(Boolean))];
   if(mas.length>1) warn.push('Nhiều MA_CSKCB khác nhau trong dữ liệu: '+mas.join(', ')+'.');
   return {ten, macskcb:mas[0]||'', nam, quy, muc, grand, perFile, monthCount, warn};
@@ -1524,6 +1630,84 @@ document.getElementById('btnBh02').addEventListener('click', async ()=>{
 });
 document.getElementById('btnBH02Xlsx').addEventListener('click', ()=>{
   if(bh02Model) exportBH02Xlsx(bh02Model);
+});
+
+/* ---------- Phiên bản & In trực tiếp ---------- */
+const APP_VERSION='v2.1 · cập nhật 08/07/2026';
+document.getElementById('appVer').textContent=APP_VERSION;
+function printWith(cls){
+  document.body.classList.add(cls);
+  const done=()=>{ document.body.classList.remove(cls); window.removeEventListener('afterprint',done); };
+  window.addEventListener('afterprint',done);
+  window.print();
+}
+document.getElementById('btnBH01Print').addEventListener('click',()=>printWith('p-bh01'));
+document.getElementById('btnBH02Print').addEventListener('click',()=>printWith('p-bh02'));
+
+/* ---------- Đánh dấu "đã xử lý" (lưu trên máy - localStorage) ---------- */
+function loadDone(){ try{ return JSON.parse(localStorage.getItem('bh_done_v1')||'{}'); }catch(e){ return {}; } }
+function saveDone(m){ try{ localStorage.setItem('bh_done_v1', JSON.stringify(m)); }catch(e){} }
+
+/* ---------- Mẫu 03/BH: bản nháp Biên bản giám định (file Word) ---------- */
+function exportMau03(m){
+  const ky=`quý ${m.quy??'…'} năm ${m.nam??'…'}`;
+  const dots=n=>'.'.repeat(n||40);
+  const html=`<html><head><meta charset="utf-8"><style>
+    body{font-family:"Times New Roman"; font-size:13pt; line-height:1.5;}
+    .c{text-align:center;} .b{font-weight:bold;} .i{font-style:italic;}
+    p{margin:6pt 0;}
+  </style></head><body>
+  <table style="width:100%"><tr>
+    <td style="width:35%"></td>
+    <td class="c"><span class="b">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</span><br><span class="b">Độc lập - Tự do - Hạnh phúc</span><br>---------------</td>
+    <td style="width:12%; vertical-align:top" class="b">Mẫu số 03/BH</td>
+  </tr></table>
+  <p class="c b" style="font-size:14pt; margin-top:14pt">BIÊN BẢN<br>GIÁM ĐỊNH CHI PHÍ KHÁM BỆNH, CHỮA BỆNH BẢO HIỂM Y TẾ</p>
+  <p class="c">${esc(ky.charAt(0).toUpperCase()+ky.slice(1))}</p>
+  <p class="c">Tại ${esc(m.ten||dots(50))}</p>
+  <p class="c">Số: ${dots(20)}/BB-BHXH</p>
+  <p class="i">Căn cứ Luật Bảo hiểm y tế số 25/2008/QH12 được sửa đổi, bổ sung bởi Luật số 46/2014/QH13 và Luật số 51/2024/QH15;</p>
+  <p class="i">Căn cứ Nghị định số 188/2025/NĐ-CP ngày 01 tháng 7 năm 2025 của Chính phủ quy định chi tiết và hướng dẫn thi hành một số điều của Luật Bảo hiểm y tế;</p>
+  <p class="i">Căn cứ Thông tư số 12/2026/TT-BTC ngày 10 tháng 02 năm 2026 của Bộ trưởng Bộ Tài chính;</p>
+  <p class="i">Căn cứ Hợp đồng khám bệnh, chữa bệnh bảo hiểm y tế năm ${m.nam??dots(8)} số ${dots(12)}/HĐKCB-BHYT và văn bản thông báo số ${dots(12)}/TB-BHXH của Bảo hiểm xã hội ${dots(20)};</p>
+  <p><span class="b">Chúng tôi gồm:</span></p>
+  <p><span class="b">Bên A</span> (cơ quan bảo hiểm xã hội): ${dots(60)}</p>
+  <p>- Ông (Bà) ${dots(50)} Chức vụ: ${dots(30)}</p>
+  <p>- Ông (Bà) ${dots(50)} Chức vụ: ${dots(30)}</p>
+  <p><span class="b">Bên B</span>: <span class="b">${esc(m.ten||dots(50))}</span> — Mã đơn vị: ${esc(m.macskcb||dots(10))}</p>
+  <p>- Ông (Bà) ${dots(50)} Chức vụ: ${dots(30)}</p>
+  <p>- Ông (Bà) ${dots(50)} Chức vụ: ${dots(30)}</p>
+  <p>Lập Biên bản giám định chi phí khám bệnh, chữa bệnh bảo hiểm y tế ${esc(ky)} như sau:</p>
+  <p class="b">I. Hồ sơ bên B đề nghị thanh toán</p>
+  <p>1. Hồ sơ đã tiếp nhận tại Cổng tiếp nhận dữ liệu: <span class="b">${m.grand.luot.toLocaleString('vi-VN')}</span> hồ sơ.</p>
+  <p>Số tiền đề nghị thanh toán bảo hiểm y tế: <span class="b">${fmtVND(m.grand.bhtt)}</span> đồng <span class="i">(bằng chữ: ${esc(docTienBangChu(m.grand.bhtt))})</span>.</p>
+  <p>Trong đó, hồ sơ bên B đã điều chỉnh: ${dots(30)}; số tiền đề nghị thanh toán sau điều chỉnh: ${dots(30)}</p>
+  <p>2. Hồ sơ Cổng tiếp nhận dữ liệu không tiếp nhận: ${dots(20)}; số tiền đề nghị thanh toán bảo hiểm y tế: ${dots(30)}</p>
+  <p class="b">II. Nội dung đã thực hiện</p>
+  <p>1. Các thay đổi trong thời gian thực hiện hợp đồng: ${dots(80)}</p>
+  <p>2. Nội dung và kết quả giám định chi phí khám bệnh, chữa bệnh bảo hiểm y tế:</p>
+  <p>a) Cơ sở khám bệnh, chữa bệnh: ${dots(80)}</p>
+  <p>b) Cơ quan bảo hiểm xã hội: ${dots(80)}</p>
+  <p class="b">III. Kết luận</p>
+  <p>${dots(100)}</p>
+  <p class="i c" style="margin-top:16pt">Biên bản được lập thành 02 bản, mỗi bên giữ 01 bản có giá trị pháp lý như nhau./.</p>
+  <table style="width:100%; margin-top:20pt; text-align:center"><tr>
+    <td class="b">ĐẠI DIỆN BÊN A<br><span class="i" style="font-weight:normal">(Ký, họ tên, đóng dấu)</span></td>
+    <td class="b">ĐẠI DIỆN BÊN B<br><span class="i" style="font-weight:normal">(Ký, họ tên, đóng dấu)</span></td>
+  </tr></table>
+  </body></html>`;
+  const blob=new Blob(['﻿'+html],{type:'application/msword'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`Mau03_BH_Q${m.quy??'X'}_${m.nam??''}_nhap.doc`;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+}
+document.getElementById('btnMau03').addEventListener('click',()=>{
+  const st=document.getElementById('status');
+  if(!bh02Model){ st.className='err'; st.textContent='Hãy bấm "Tổng hợp BH02" trước khi xuất Mẫu 03/BH.'; return; }
+  exportMau03(bh02Model);
+  st.className=''; st.textContent='Đã tải bản nháp Mẫu 03/BH (Word) — mở bằng Word để hoàn thiện các phần điền tay.';
 });
 
 /* ---------- Run ---------- */
