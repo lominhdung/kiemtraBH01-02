@@ -44,6 +44,25 @@
   #btnConvert:hover{background:var(--navy-2);}
   #btnConvert:disabled{background:#B9CBD6; cursor:not-allowed;}
   .btn-mini{background:#EDF3F8; color:var(--navy); border:1px solid var(--line); padding:8px 14px; font-size:12.5px;}
+  .lechinp{font:inherit; font-size:12.5px; padding:5px 8px; border:1px solid var(--teal); border-radius:6px; min-width:150px; background:#fff; color:var(--ink);}
+  tr.lechdone td{background:var(--ok-bg);}
+  /* ---- Màn hình đăng nhập ---- */
+  body.locked header, body.locked main, body.locked footer{display:none;}
+  #authGate{position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; background:linear-gradient(160deg,var(--navy) 0%,var(--navy-2) 55%,#0B7E7D 100%); padding:20px;}
+  body.locked #authGate{display:flex;}
+  .authbox{width:360px; max-width:94vw; background:var(--card); border-radius:16px; padding:30px 28px; box-shadow:0 18px 50px rgba(0,0,0,.28);}
+  .authbox h2{margin:14px 0 2px; font-size:19px; color:var(--navy);}
+  .authsub{margin:0 0 20px; font-size:12.5px; color:var(--muted);}
+  .authbox label{display:block; font-size:12.5px; font-weight:600; color:var(--navy); margin-bottom:12px;}
+  .authbox input{display:block; width:100%; box-sizing:border-box; margin-top:5px; font:inherit; padding:10px 12px; border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink);}
+  .authbox input:focus{outline:2px solid var(--teal); outline-offset:1px;}
+  .authbox button{width:100%; margin-top:6px; background:var(--teal); color:#fff;}
+  .authbox button:hover{background:var(--teal-dark);}
+  .autherr{min-height:18px; margin-top:10px; font-size:12.5px; color:var(--err); font-weight:600;}
+  .authnote{margin:14px 0 0; font-size:11.5px; line-height:1.5; color:var(--muted);}
+  .authwho{margin-left:auto; display:flex; align-items:center; gap:10px; font-size:12.5px; color:#DCE6EE;}
+  header{display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
+
   .btn-mini:hover{background:#DFEAF3;}
   #btnFixHis,#btnFixBhxh{background:var(--teal); color:#fff;}
   #btnFixHis:hover,#btnFixBhxh:hover{background:var(--teal-dark);}
@@ -87,9 +106,9 @@
     .card{border:none; padding:0; margin:0;}
     .scroll{max-height:none!important; overflow:visible!important;}
     #tblBH01 th{position:static!important;}
-    body.p-bh01 #resultArea,body.p-bh01 #convertArea,body.p-bh01 #tabQuy,body.p-bh01 #tabHelp{display:none!important;}
+    body.p-bh01 #resultArea,body.p-bh01 #convertArea,body.p-bh01 #tabQuy,body.p-bh01 #tabHelp,body.p-bh01 #tabLog,body.p-bh01 #cardLech,body.p-bh01 #cardX47{display:none!important;}
     body.p-bh01 #bh01Area .card>h2{display:none!important;}
-    body.p-bh02 #tabThang,body.p-bh02 #tabHelp{display:none!important;}
+    body.p-bh02 #tabThang,body.p-bh02 #tabHelp,body.p-bh02 #tabLog{display:none!important;}
     body.p-bh02 #cardBh02>h2,body.p-bh02 #bh02MonthsWrap,body.p-bh02 #bh02CmpWrap{display:none!important;}
   }
   #status{font-size:13.5px; color:var(--muted);}
@@ -121,7 +140,20 @@
   footer{text-align:center; font-size:12px; color:var(--muted); padding:14px;}
 </style>
 </head>
-<body>
+<body class="locked">
+<div id="authGate">
+  <form class="authbox" id="authForm" autocomplete="off">
+    <svg viewBox="0 0 48 48" width="42" height="42" fill="none"><ellipse cx="24" cy="24" rx="20" ry="13" stroke="#0E9C9B" stroke-width="2.5"/><circle cx="24" cy="24" r="7.5" fill="#0E9C9B"/></svg>
+    <h2>Đăng nhập</h2>
+    <p class="authsub">Tool đối chiếu BHYT · Phòng CNTT · BV Mắt Sài Gòn – Sông Hàn</p>
+    <label>Tên đăng nhập<input id="authUser" autocomplete="username" required></label>
+    <label>Mật khẩu<input id="authPass" type="password" autocomplete="current-password" required></label>
+    <button type="submit">Vào tool</button>
+    <div id="authMsg" class="autherr"></div>
+    <noscript><p class="autherr">Trình duyệt đang tắt JavaScript — tool không chạy được.</p></noscript>
+    <p class="authnote">Trang xử lý toàn bộ dữ liệu ngay trên máy bạn, không gửi đi đâu. Đăng nhập chỉ để chặn người không phận sự mở tool — không phải lớp bảo mật dữ liệu.</p>
+  </form>
+</div>
 <header>
   <div class="brand">
     <svg class="logo" viewBox="0 0 48 48" fill="none">
@@ -134,6 +166,7 @@
       <p>Bệnh viện Mắt Sài Gòn – Sông Hàn · Mã CSKCB 48211 </p>
     </div>
   </div>
+  <div class="authwho"><span id="authWho"></span><button id="btnLogout" class="btn-mini" type="button">Đăng xuất</button></div>
 </header>
 
 <main>
@@ -141,6 +174,7 @@
     <button data-tab="tabThang" class="active">📋 Đối chiếu tháng (Mẫu 01)</button>
     <button data-tab="tabQuy">📊 Tổng hợp quý (BH02)</button>
     <button data-tab="tabHelp">❓ Hướng dẫn sử dụng</button>
+    <button data-tab="tabLog" style="display:none">🗂 Nhật ký (admin)</button>
   </nav>
 
   <div id="tabThang">
@@ -230,6 +264,8 @@
         <button class="btn-mini" data-fixall="bhxh">Tất cả: sửa HIS theo BHXH</button>
         <button class="btn-mini" data-fixall="his">Tất cả: sửa BHXH theo HIS</button>
         <button class="btn-mini" data-fixall="skip">Tất cả: không sửa</button>
+        <button id="btnSyncSign" title="Ép mọi ô lệch về giá trị của cổng BHXH, dựng lại Mẫu 01 và tải file Excel để đưa vào phần mềm ký số">Đồng bộ theo cổng → file ký số</button>
+        <button id="btnSyncXml" class="btn-mini" title="Như trên nhưng xuất thẳng XML định dạng HSTH01BH">…dạng XML</button>
         <button id="btnFixHis">Tải BaoCao_01 đã sửa</button>
         <button id="btnFixBhxh">Tải TKDLXML đã sửa</button>
         <button id="btnBH01Fixed">Xuất Excel BH01 đã sửa</button>
@@ -242,7 +278,53 @@
       <h2><span class="n">5</span>Hồ sơ chỉ có ở một bên</h2>
       <div class="scroll"><table id="tblOrphan"></table></div>
     </div>
+
   </div>
+    <div class="card" id="cardLech">
+      <h2><span class="n">6</span>Nạp file đối chiếu lệch từ cổng — sửa thủ công &amp; lưu vào BH01</h2>
+      <div class="dropzone dz-bhxh" id="dzLech">
+        <span class="dz-tag">CỔNG BHXH · KẾT QUẢ ĐỐI CHIẾU</span>
+        <h3>Mau01BH_&lt;mã&gt;_yyyymm.xlsx tải từ cổng giám định</h3>
+        <div class="hint">File có cột "Trạng thái đối chiếu" — tool lấy các dòng <b>Đối chiếu lệch</b>, ghép với File 1 theo Mã thẻ + Ngày vào, cho sửa từng trường rồi ghi vào báo cáo BH01</div>
+        <div class="hint" style="margin-top:6px">Chỉ cần File 1 ở trên — không cần nạp File 2 (TKDLXML)</div>
+        <div class="fileinfo" id="fiLech"></div>
+        <input type="file" id="inLech" accept=".xlsx,.xls">
+      </div>
+      <div id="lechArea" style="display:none">
+        <div class="actions" style="margin:14px 0 4px">
+          <label style="font-size:12.5px;display:flex;align-items:center;gap:6px"><input type="checkbox" id="lechAll" checked> Hiện tất cả trường (bỏ tick để chỉ xem trường lệch)</label>
+          <button class="btn-mini" id="btnLechCong">Điền tất cả theo cổng</button>
+          <button class="btn-mini" id="btnLechHis">Trả về giá trị HIS</button>
+          <button id="btnLechApply">Áp dụng &amp; xem BH01</button>
+          <button class="btn-mini" id="btnLechXlsx">Xuất Excel BH01</button>
+        </div>
+        <div class="scroll"><table id="tblLech"></table></div>
+        <div class="note" id="lechNote"></div>
+      </div>
+    </div>
+
+    <div class="card" id="cardX47">
+      <h2><span class="n">7</span>Nạp Excel 4750 (Bảng 1) — đối chiếu đủ 15 trường với Mẫu 01</h2>
+      <div class="dropzone dz-bhxh" id="dz4750">
+        <span class="dz-tag">XML 4750 · BẢNG 1</span>
+        <h3>Excel 4750 xuất từ HIS (workbook có sheet "Bảng 1")</h3>
+        <div class="hint">Bảng 1 chứa đủ <b>Ngày vào nội trú, Số ngày ĐT, Loại KCB, Tổng chi BH, Nguồn khác</b> — những trường file TKDLXML không xuất, nên bắt được loại lệch mà mục 3 không thấy</div>
+        <div class="hint" style="margin-top:6px">Chỉ cần File 1 ở trên — không cần nạp File 2 (TKDLXML)</div>
+        <div class="fileinfo" id="fi4750"></div>
+        <input type="file" id="in4750" accept=".xlsx,.xls">
+      </div>
+      <div id="x47Area" style="display:none">
+        <div class="summary-grid" id="x47Stat" style="margin-top:14px"></div>
+        <div class="actions" style="margin:12px 0 4px">
+          <button class="btn-mini" id="btnX47Xlsx">Xuất Excel kết quả đối chiếu</button>
+        </div>
+        <div class="scroll"><table id="tblX47"></table></div>
+        <div id="x47OrphanWrap" style="display:none;margin-top:12px">
+          <div class="scroll"><table id="x47Orphan"></table></div>
+        </div>
+        <div class="note" id="x47Note"></div>
+      </div>
+    </div>
   </div><!-- /tabThang -->
 
   <div id="tabQuy" style="display:none">
@@ -355,12 +437,136 @@
       </ul>
     </div>
   </div>
+  <div id="tabLog" style="display:none">
+    <div class="card">
+      <h2><span class="n">🗂</span>Nhật ký đăng nhập &amp; thao tác</h2>
+      <div id="logDeny" style="display:none;color:var(--err);font-weight:600">Chỉ tài khoản quản trị mới xem được nhật ký.</div>
+      <div id="logWrap">
+        <div class="summary-grid" id="logStat" style="margin-bottom:14px"></div>
+        <div class="actions" style="margin:4px 0 12px; align-items:center">
+          <input class="lechinp" id="logFU" placeholder="Lọc theo tài khoản / họ tên…">
+          <input class="lechinp" id="logFT" placeholder="Lọc theo thao tác / chi tiết…">
+          <input class="lechinp" id="logFD" placeholder="Ngày dd/mm/yyyy" style="min-width:130px">
+          <button class="btn-mini" id="btnLogXlsx">Xuất Excel</button>
+          <button class="btn-mini" id="btnLogClear">Xoá nhật ký</button>
+        </div>
+        <div class="scroll"><table id="tblLog"></table></div>
+        <div class="note" id="logNote"></div>
+      </div>
+    </div>
+  </div>
 </main>
 <footer>Tool nội bộ phòng CNTT · So khớp theo Mã thẻ BHYT + thời điểm vào viện (đến phút) · Sai số tiền cho phép ±0,5 đ · <b id="appVer"></b></footer>
 
 <script>
 "use strict";
 let fileHis=null, fileBhxh=null, result=null;
+/* ================== ĐĂNG NHẬP ==================
+   Tool là trang tĩnh chạy trên máy người dùng: đây là RÀO CHẮN SỬ DỤNG, không phải
+   lớp bảo mật. Người biết kỹ thuật vẫn xem được mã nguồn. Tool không lưu dữ liệu
+   bệnh nhân — dữ liệu chỉ nằm trong file Excel người dùng tự chọn.
+   Thêm tài khoản: mở Console (F12), gõ  taoTaiKhoan('tendangnhap','matkhau','Họ tên')
+   rồi dán dòng kết quả vào AUTH_USERS bên dưới.                                    */
+const SHA_K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+// SHA-256 thuần JS: chạy được cả khi mở bằng file:// (không cần crypto.subtle)
+function sha256Hex(str){
+  const H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const msg=new TextEncoder().encode(str), len=msg.length, bitLen=len*8;
+  const total=Math.ceil((len+9)/64)*64, buf=new Uint8Array(total);
+  buf.set(msg); buf[len]=0x80;
+  const dv=new DataView(buf.buffer);
+  dv.setUint32(total-8, Math.floor(bitLen/4294967296), false);
+  dv.setUint32(total-4, bitLen>>>0, false);
+  const w=new Uint32Array(64), rr=(x,n)=>(x>>>n)|(x<<(32-n));
+  for(let i=0;i<total;i+=64){
+    for(let t=0;t<16;t++) w[t]=dv.getUint32(i+t*4,false);
+    for(let t=16;t<64;t++){
+      const s0=rr(w[t-15],7)^rr(w[t-15],18)^(w[t-15]>>>3);
+      const s1=rr(w[t-2],17)^rr(w[t-2],19)^(w[t-2]>>>10);
+      w[t]=(w[t-16]+s0+w[t-7]+s1)>>>0;
+    }
+    let a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+    for(let t=0;t<64;t++){
+      const S1=rr(e,6)^rr(e,11)^rr(e,25), ch=(e&f)^((~e)&g);
+      const t1=(h+S1+ch+SHA_K[t]+w[t])>>>0;
+      const S0=rr(a,2)^rr(a,13)^rr(a,22), mj=(a&b)^(a&c)^(b&c);
+      const t2=(S0+mj)>>>0;
+      h=g; g=f; f=e; e=(d+t1)>>>0; d=c; c=b; b=a; a=(t1+t2)>>>0;
+    }
+    H[0]=(H[0]+a)>>>0;H[1]=(H[1]+b)>>>0;H[2]=(H[2]+c)>>>0;H[3]=(H[3]+d)>>>0;
+    H[4]=(H[4]+e)>>>0;H[5]=(H[5]+f)>>>0;H[6]=(H[6]+g)>>>0;H[7]=(H[7]+h)>>>0;
+  }
+  return H.map(x=>x.toString(16).padStart(8,'0')).join('');
+}
+const AUTH_ROUNDS=20000; // lặp để làm chậm dò mật khẩu (~90ms mỗi lần thử)
+function pwHash(salt,pw){ let h=sha256Hex(salt+':'+pw); for(let i=0;i<AUTH_ROUNDS;i++) h=sha256Hex(h+salt); return h; }
+
+const AUTH_USERS={
+  'admin':{salt:'83ad07e0fc1950be', hash:'f9580fe3c9eaa85e617780498c6c97aaf30930bf7367e11fe0941badbee46fa4', ten:'Quản trị', vaitro:'admin'}
+};
+
+// vaitro: "admin" để được xem nhật ký; bỏ trống = người dùng thường
+function taoTaiKhoan(user,pw,ten,vaitro){
+  const salt=Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b=>b.toString(16).padStart(2,'0')).join('');
+  const d=String.fromCharCode(39);
+  const line='  '+d+String(user).trim().toLowerCase()+d+':{salt:'+d+salt+d+', hash:'+d+pwHash(salt,pw)+d+', ten:'+d+(ten||user)+d+(vaitro?', vaitro:'+d+vaitro+d:'')+'},';
+  console.log(line);
+  return line;
+}
+const AUTH_KEY='bh0102_phien', AUTH_LOCK='bh0102_khoa';
+function authLockState(){ try{ return JSON.parse(localStorage.getItem(AUTH_LOCK)) || {n:0,den:0}; }catch(e){ return {n:0,den:0}; } }
+function authLockLeft(){ const s=authLockState(); const l=Math.ceil((s.den-Date.now())/1000); return l>0?l:0; }
+function authFail(){ const s=authLockState(); s.n=(s.n||0)+1;
+  if(s.n>=5) s.den=Date.now()+Math.min(300,30*Math.pow(2,s.n-5))*1000;
+  try{ localStorage.setItem(AUTH_LOCK, JSON.stringify(s)); }catch(e){} }
+function authReset(){ try{ localStorage.removeItem(AUTH_LOCK); }catch(e){} }
+function authUnlock(p){
+  document.body.classList.remove('locked');
+  const w=document.getElementById('authWho'); if(w) w.textContent=p.ten+' · '+p.user;
+  if(typeof capNhatTabLog==='function') capNhatTabLog();
+}
+function authLogout(){ ghiLog('Đăng xuất', ''); try{ sessionStorage.removeItem(AUTH_KEY); }catch(e){} location.reload(); }
+function authTry(){
+  const msg=document.getElementById('authMsg');
+  const left=authLockLeft();
+  if(left>0){ msg.textContent='Sai quá nhiều lần — thử lại sau '+left+' giây.'; return; }
+  const u=(document.getElementById('authUser').value||'').trim().toLowerCase();
+  const pwEl=document.getElementById('authPass'), pw=pwEl.value||'';
+  const rec=AUTH_USERS[u];
+  msg.textContent='Đang kiểm tra…';
+  setTimeout(()=>{
+    if(!rec || pwHash(rec.salt,pw)!==rec.hash){
+      authFail(); pwEl.value=''; pwEl.focus();
+      ghiLogAn(u||'(trống)', 'Đăng nhập THẤT BẠI', rec?'sai mật khẩu':'tài khoản không tồn tại');
+      const l=authLockLeft();
+      msg.textContent=l>0 ? ('Sai quá nhiều lần — khoá '+l+' giây.') : 'Sai tên đăng nhập hoặc mật khẩu.';
+      return;
+    }
+    authReset();
+    const phien={user:u, ten:rec.ten, luc:Date.now()};
+    try{ sessionStorage.setItem(AUTH_KEY, JSON.stringify(phien)); }catch(e){}
+    msg.textContent=''; authUnlock(phien); ghiLog('Đăng nhập', '');
+  },20);
+}
+(function authInit(){
+  let p=null; try{ p=JSON.parse(sessionStorage.getItem(AUTH_KEY)); }catch(e){}
+  if(p && p.user && AUTH_USERS[p.user]) authUnlock(p);
+  if(typeof capNhatTabLog==='function') capNhatTabLog();
+  const f=document.getElementById('authForm');
+  if(f) f.addEventListener('submit', ev=>{ ev.preventDefault(); authTry(); });
+  const b=document.getElementById('btnLogout');
+  if(b) b.addEventListener('click', authLogout);
+  const i=document.getElementById('authUser');
+  if(i && document.body.classList.contains('locked')) i.focus();
+})();
+
 
 /* ---------- UI wiring ---------- */
 function wireDZ(dz, input, fi, setter){
@@ -374,8 +580,8 @@ function wireDZ(dz, input, fi, setter){
   });
 }
 let autoNeeded=false; // đủ 2 file → tự chạy đối chiếu, không cần bấm nút
-function setHis(f){ fileHis=f; autoNeeded=true; showFile('fiHis','dzHis',f); check(); runDQ(); }
-function setBhxh(f){ fileBhxh=f; autoNeeded=true; showFile('fiBhxh','dzBhxh',f); check(); }
+function setHis(f){ ghiLog('Nạp File 1 · Mẫu 01 (HIS)', f&&f.name); fileHis=f; autoNeeded=true; showFile('fiHis','dzHis',f); check(); runDQ(); }
+function setBhxh(f){ ghiLog('Nạp File 2 · TKDLXML (cổng)', f&&f.name); fileBhxh=f; autoNeeded=true; showFile('fiBhxh','dzBhxh',f); check(); }
 
 /* ---------- Kiểm tra chất lượng dữ liệu File 1 (chạy tự động khi nạp) ---------- */
 async function runDQ(){
@@ -403,6 +609,12 @@ async function runDQ(){
       if(h.vnt&&(h.vnt<h.din||(h.dout&&h.vnt>h.dout))) e.push('Ngày vào nội trú ngoài khoảng vào–ra');
       if(h.kcb==='03'&&!h.vnt) e.push('Nội trú nhưng thiếu Ngày vào nội trú');
       if(h.vnt&&(h.kcb==='01'||h.kcb==='02')) e.push('Loại KCB ngoại trú nhưng CÓ Ngày vào nội trú — mâu thuẫn phân loại, cổng sẽ báo "đối chiếu lệch"');
+      const kcbGoc=h.kcbRaw||h.kcb;
+      if(kcbGoc==='09'&&!h.vnt) e.push('Nội trú dưới 04 giờ nhưng thiếu Ngày vào nội trú');
+      if(h.vnt&&h.dout){
+        const gio=(h.dout-h.vnt)/3600000, sg=gio.toFixed(2).replace('.',',');
+        if(kcbGoc==='09'&&gio>=4) e.push('Mã 09 (nội trú dưới 04 giờ) nhưng thời gian nội trú '+sg+' giờ ≥ 4 giờ — sai mã loại KCB, cổng sẽ báo đối chiếu lệch');
+      }
       if(!/^[A-Z]{2}\d{13}$/.test(h.card)) e.push('Mã thẻ không đúng cấu trúc 2 chữ + 13 số');
       if(h.icd&&!/^[A-TV-Z]\d{2}(\.\d{1,2})?$/i.test(h.icd)) e.push('Mã ICD-10 bất thường: '+h.icd);
       if(['tong','bhyt','bhtt','cct','tutra','vientro'].some(f=>(h[f]||0)<0)) e.push('Có số tiền âm');
@@ -446,10 +658,12 @@ function check(){
 }
 /* ---------- Tabs ---------- */
 function showTab(id){
-  for(const t of ['tabThang','tabQuy','tabHelp']){
+  if(id==='tabLog' && !laAdmin()) id='tabThang';
+  for(const t of ['tabThang','tabQuy','tabHelp','tabLog']){
     const e=document.getElementById(t); if(e) e.style.display = t===id?'block':'none';
   }
   document.querySelectorAll('#tabNav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===id));
+  if(id==='tabLog' && typeof renderLog==='function') renderLog();
   window.scrollTo({top:0, behavior:'smooth'});
 }
 document.querySelectorAll('#tabNav button').forEach(b=>b.addEventListener('click', ()=>showTab(b.dataset.tab)));
@@ -487,6 +701,18 @@ const keyMin = d => d ? d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate())+p2(d.
 const fmtDT = d => d ? p2(d.getDate())+'/'+p2(d.getMonth()+1)+'/'+d.getFullYear()+' '+p2(d.getHours())+':'+p2(d.getMinutes()) : '';
 const fmtD  = d => d ? p2(d.getDate())+'/'+p2(d.getMonth()+1)+'/'+d.getFullYear() : '';
 const num = v => { const n=parseFloat(String(v??'').replace(/[, ]/g,'')); return isNaN(n)?null:n; };
+// Đọc số tiền do NGƯỜI DÙNG gõ vào ô nhập: chấp nhận cả kiểu Việt (1.234.567,8) lẫn kiểu Anh (1,234,567.8).
+// Không dùng cho ô Excel — num() ở trên vẫn giữ nguyên cho luồng đọc file.
+function numVN(v){
+  let s=String(v==null?"":v).replace(/\s/g,"").trim();
+  if(!s) return null;
+  if(/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s))      s=s.replace(/\./g,"").replace(",",".");  // 1.234.567,8
+  else if(/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s=s.replace(/,/g,"");                    // 1,234,567.8
+  else if(s.indexOf(",")>=0 && s.indexOf(".")<0)     s=s.replace(",",".");                   // 1234,5
+  else                                               s=s.replace(/,/g,"");
+  const n=parseFloat(s);
+  return isNaN(n)?null:n;
+}
 const sameMin = (a,b)=> keyMin(a)===keyMin(b);
 const sameDay = (a,b)=> (a&&b) ? (a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate()) : (!a&&!b);
 const moneyDiff = (a,b)=> Math.abs((a??0)-(b??0))>0.5;
@@ -525,7 +751,7 @@ function parseHisFlat(rows, hIdx, r0, c0){
     const card=String(r[col.card]??'').trim();
     if(card.length<10) continue;
     const sx=String(r[col.sex]??'').trim();
-    let k=String(r[col.kcb]??'').trim().padStart(2,'0'); k=rep[k]||k;
+    const k0=String(r[col.kcb]??'').trim().padStart(2,'0'); const k=rep[k0]||k0;
     out.push({
       stt:num(r[col.stt])||out.length+1, name:String(r[col.name]??'').trim(),
       dob:dt12(r[col.dob]), sex: sx==='1'?'Nam':sx==='2'?'Nữ':sx,
@@ -534,7 +760,7 @@ function parseHisFlat(rows, hIdx, r0, c0){
       songay:num(r[col.songay]),
       tong:num(r[col.tong]), bhyt:num(r[col.bhyt]), bhtt:num(r[col.bhtt]),
       cct:num(r[col.cct]), vientro:num(r[col.vientro]), tutra:num(r[col.tutra]),
-      kcb:k, row:r0+i
+      kcb:k, kcbRaw:k0, row:r0+i
     });
     if(meta.thang==null){
       meta.thang=num(r[col.thang]); meta.nam=num(r[col.nam]);
@@ -551,6 +777,15 @@ function parseHisFlat(rows, hIdx, r0, c0){
 function parseHis(wb){
   const ws=wb.Sheets[wb.SheetNames[0]];
   const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+  // Chặn nạp nhầm ô: các file dưới đây có cột "Mã thẻ" nên vẫn parse được,
+  // nhưng ánh xạ cột sẽ sai và làm hỏng số tiền một cách âm thầm.
+  for(let i=0;i<Math.min(rows.length,5);i++){
+    const h=(rows[i]||[]).map(c=>low(c));
+    if(h.some(c=>c.includes("trạng thái hs")) || h.some(c=>c.includes("mã liên kết")))
+      throw new Error("Đây là file TKDLXML của cổng BHXH — hãy nạp vào ô File 2, không phải File 1.");
+    if(h.some(c=>c.includes("trạng thái đối chiếu")))
+      throw new Error("Đây là file Mau01BH tải từ cổng BHXH — hãy nạp vào mục 6 (đối chiếu lệch), không phải File 1.");
+  }
   const rng=XLSX.utils.decode_range(ws['!ref']||'A1'); // rows[i] ↔ dòng sheet rng.s.r+i
   const r0=rng.s.r, c0=rng.s.c;
   // Định dạng phẳng CHITIET_HS01BH (HIS xuất kiểu BaoCao_MAU01_BH)?
@@ -753,8 +988,8 @@ function render(r){
         const key=esc(gkey);
         const isDone=!!doneSet[gkey];
         const fixCell=`<td><select class="fixsel" data-k="${key}" data-f="${is.id}">`+
+          `<option value="bhxh">HIS ← theo BHXH (mặc định)</option>`+
           `<option value="skip">Không sửa</option>`+
-          `<option value="bhxh">HIS ← theo BHXH</option>`+
           `<option value="his">BHXH ← theo HIS</option>`+
           `<option value="custom">Nhập tay (cả 2)</option>`+
           `</select><input class="fixinp" placeholder="Giá trị đúng…" value="${esc(is.bhxh)}"></td>`;
@@ -841,7 +1076,7 @@ function buildMau01BH(his){
     g.n++; g.tong+=bv; g.bhtt+=tt;
     aoa.push([
       i+1, h.name, fmt12(h.dob), sexCode(h.sex), h.card, h.icd,
-      fmt12(h.din), fmt12(h.vnt), fmt12(h.dout), h.songay??0, h.kcb,
+      fmt12(h.din), fmt12(h.vnt), fmt12(h.dout), h.songay??0, h.kcbRaw??h.kcb,
       bv, bh, tt, cct, bntt, nk,
       String(meta.macskcb||''), meta.nam??'', meta.thang??''
     ]);
@@ -878,9 +1113,63 @@ function exportMau01BH(cv){
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(cv.aoa), 'BaoCao_MAU01_BH');
   const ky=(cv.meta.thang&&cv.meta.nam)?`_${cv.meta.nam}${p2(cv.meta.thang)}`:'';
+  ghiLog('Xuất BaoCao_MAU01_BH', cv.n+' hồ sơ');
   XLSX.writeFile(wb, `BaoCao_MAU01_BH_${cv.meta.macskcb||'CSKCB'}${ky}.xlsx`);
 }
 
+/* ---------- Đồng bộ HIS theo cổng BHXH & xuất file để ký số ---------- */
+function xmlEsc(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+const XML_MONEY=new Set(['T_TONGCHI_BV','T_TONGCHI_BH','T_BHTT','T_BNCCT','T_BNTT','T_NGUONKHAC']);
+const xmlMoney=v=>(Number(v)||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+// Dựng XML HSTH01BH đúng định dạng cổng đã nhận: 1 dòng, không khai báo XML, tiền #,##0.00, trường rỗng là thẻ tự đóng
+function buildMau01XML(cv){
+  const F=cv.aoa[1];
+  const body=cv.aoa.slice(2).map(r=>'<CHITIET_HS01BH>'+F.map((f,j)=>{
+    const v=XML_MONEY.has(f)?xmlMoney(r[j]):String(r[j]==null?'':r[j]).trim();
+    return v===''?'<'+f+' />':'<'+f+'>'+xmlEsc(v)+'</'+f+'>';
+  }).join('')+'</CHITIET_HS01BH>').join('');
+  return '<HSTH01BH><DS_CHITIET>'+body+'</DS_CHITIET></HSTH01BH>';
+}
+function downloadText(name,text,mime){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type:mime}));
+  a.download=name; document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},0);
+}
+function kyName(cv){
+  const ky=(cv.meta.thang&&cv.meta.nam)?'_'+cv.meta.nam+p2(cv.meta.thang):'';
+  return 'BaoCao_MAU01_BH_'+(cv.meta.macskcb||'CSKCB')+ky;
+}
+// Ép toàn bộ ô Phương án sửa về 'HIS ← theo BHXH'
+function syncAllFromBhxh(){
+  let n=0;
+  document.querySelectorAll('#tblDetail .fixsel').forEach(s=>{
+    if(s.value!=='bhxh'){ s.value='bhxh'; n++; }
+    const inp=s.closest('td').querySelector('.fixinp'); if(inp) inp.style.display='none';
+  });
+  return n;
+}
+async function syncAndExport(asXml){
+  const st=document.getElementById('status'); st.className='';
+  try{
+    if(!fileHis) throw new Error('Chưa nạp File 1 (Mẫu 01 từ HIS).');
+    if(!result)  throw new Error('Chưa chạy đối chiếu — cần cả File 1 và File 2.');
+    const doi=syncAllFromBhxh();
+    st.textContent='Đang đồng bộ dữ liệu theo cổng BHXH…';
+    const his=parseHis(await readWB(fileHis));
+    const fx=applyFixesToHis(his);
+    const cv=buildMau01BH(his);
+    renderConvert(cv);
+    ghiLog('Đồng bộ theo cổng & xuất file ký số', (asXml?'XML HSTH01BH · ':'Excel · ')+fx.n+' ô đồng bộ · '+cv.n+' hồ sơ');
+    if(asXml) downloadText(kyName(cv)+'.xml', buildMau01XML(cv), 'application/xml;charset=utf-8');
+    else exportMau01BH(cv);
+    st.textContent='Đã đồng bộ '+fx.n+' ô theo cổng BHXH trên '+cv.n+' hồ sơ'+(doi?' ('+doi+' ô được chuyển sang phương án theo BHXH)':'')+' — đã tải file '+(asXml?'XML (HSTH01BH)':'Excel BaoCao_MAU01_BH')+' để ký số.'+(cv.warn.length?' Lưu ý: '+cv.warn.length+' hồ sơ lệch cân đối tiền.':'');
+  }catch(err){ st.className='err'; st.textContent='Lỗi: '+err.message; }
+}
+document.getElementById('btnSyncSign').addEventListener('click',()=>syncAndExport(false));
+document.getElementById('btnSyncXml').addEventListener('click',()=>syncAndExport(true));
 document.getElementById('btnConvert').addEventListener('click', async ()=>{
   const st=document.getElementById('status');
   st.className=''; st.textContent='Đang chuyển đổi sang định dạng MAU01_BH…';
@@ -912,7 +1201,7 @@ const pairKey=p=>p.h.card+'|'+keyMin(p.h.din);
 
 function parseCustom(txt,spec){
   if(spec.t==='d') return toDate(txt);
-  if(spec.t==='n') return num(txt);
+  if(spec.t==='n') return numVN(txt);
   return String(txt??'').trim();
 }
 function collectFixes(){ // đọc lựa chọn hiện tại trên bảng chi tiết
@@ -1211,8 +1500,9 @@ async function buildFixedBH01(){
   const his=parseHis(await readWB(fileHis));
   const marks=new Map(); // hồ sơ → tập trường đã sửa (để tô màu)
   const fx=applyFixesToHis(his,(h,f)=>{ let s=marks.get(h); if(!s){s=new Set(); marks.set(h,s);} s.add(f); });
+  const nLech=applyLechEdits(his, marks);   // sửa thủ công từ mục 6
   bh01Model=makeBH01Model(his,marks);
-  return fx;
+  return {n:fx.n+nLech, money:fx.money};
 }
 document.getElementById('btnViewBH01').addEventListener('click', async ()=>{
   const st=document.getElementById('status');
@@ -1255,6 +1545,7 @@ function kcbCodeFromLabel(v){
   if(/^\d{1,2}$/.test(s)) return s.padStart(2,'0'); // đã là mã số
   const t=stripDiacritics(s); // chữ hoa, không dấu
   if(!t) return null;
+  if(t.includes('DUOI 04 GIO')||t.includes('DUOI 4 GIO')) return '09';
   if(t.includes('NOI TRU BAN NGAY')) return '04';
   if(t.includes('NOI TRU'))          return '03';
   if(t.includes('BAN NGAY'))         return '04';
@@ -1729,6 +2020,419 @@ document.getElementById('btnRun').addEventListener('click', async ()=>{
   }
 });
 document.getElementById('btnExport').addEventListener('click', ()=>{ if(result) exportXlsx(result); });
+
+/* ====== Mục 6: nạp file "đối chiếu lệch" từ cổng → sửa thủ công → lưu vào BH01 ====== */
+let fileLech=null, lechData=null;
+const lechEdit=new Map();            // "thẻ|phút vào" -> { trường: giá trị đã sửa }
+const lwx=s=>String(s==null?'':s).toLowerCase().trim();
+const lechFmtD=d=>d?p2(d.getDate())+'/'+p2(d.getMonth()+1)+'/'+d.getFullYear():'';
+const LECH_MONEY=['tong','bhyt','bhtt','cct','tutra','vientro'];
+const LECH_F=[
+  ['name','Họ tên','s'],['dob','Ngày sinh','d'],['sex','Giới tính','s'],['icd','Mã bệnh chính','s'],
+  ['din','Ngày vào','t'],['vnt','Ngày vào nội trú','t'],['dout','Ngày ra','t'],
+  ['songay','Số ngày ĐT','n'],['kcbRaw','Loại KCB','s'],
+  ['tong','Tổng chi BV','n'],['bhyt','Tổng chi BH','n'],['bhtt','Bảo hiểm TT','n'],
+  ['cct','BN cùng chi trả','n'],['tutra','BN tự trả','n'],['vientro','Nguồn khác','n']
+];
+const lechShow=(v,t)=> t==='n'?fmtVND(v) : t==='d'?lechFmtD(v) : t==='t'?fmtDT(v) : String(v==null?'':v);
+const lechParse=(txt,t)=> t==='n'?numVN(txt) : (t==='d'||t==='t')?toDate(txt) : String(txt==null?'':txt).trim();
+
+function parseLechFile(wb){
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+  let hIdx=-1;
+  for(let i=0;i<Math.min(rows.length,10);i++){
+    const lo=(rows[i]||[]).map(lwx);
+    if(lo.some(c=>c.includes('mã thẻ'))&&lo.some(c=>c.includes('trạng thái đối chiếu'))){hIdx=i;break;}
+  }
+  if(hIdx<0) throw new Error('Không thấy cột "Mã thẻ" + "Trạng thái đối chiếu" — cần file Mau01BH tải từ cổng BHXH.');
+  const H=rows[hIdx].map(lwx), fd=n=>H.findIndex(h=>h.includes(n));
+  const c={card:fd('mã thẻ'),name:fd('họ'),icd:fd('mã bệnh'),kcb:fd('loại kcb'),dob:fd('ngày sinh'),
+    sex:fd('giới tính'),din:fd('ngày vào'),vnt:fd('ngày vào nội trú'),dout:fd('ngày ra'),
+    songay:fd('số ngày'),bhyt:fd('tổng chi bh'),tong:fd('tổng chi bv'),cct:fd('bệnh nhân cct'),
+    vientro:fd('nguồn khác'),bhtt:fd('bảo hiểm tt'),tutra:fd('bệnh nhân tt'),tthai:fd('trạng thái đối chiếu')};
+  const S=(r,i)=>String(r[i]==null?'':r[i]).trim();
+  const out=[];
+  for(let i=hIdx+1;i<rows.length;i++){
+    const r=rows[i]; if(!r) continue;
+    const card=S(r,c.card); if(card.length<10) continue;
+    out.push({card, tthai:lwx(r[c.tthai]), name:S(r,c.name), icd:S(r,c.icd),
+      kcbRaw:kcbCodeFromLabel(r[c.kcb]), dob:toDate(r[c.dob]), sex:S(r,c.sex),
+      din:toDate(r[c.din]), vnt:toDate(r[c.vnt]), dout:toDate(r[c.dout]),
+      songay:num(r[c.songay]), tong:num(r[c.tong]), bhyt:num(r[c.bhyt]), bhtt:num(r[c.bhtt]),
+      cct:num(r[c.cct]), tutra:num(r[c.tutra]), vientro:num(r[c.vientro])});
+  }
+  return out;
+}
+
+async function lechRun(){
+  const st=document.getElementById('status'); st.className='';
+  try{
+    if(!fileLech) return;
+    if(!fileHis) throw new Error('Chưa nạp File 1 (Mẫu 01 xuất từ HIS) ở mục trên.');
+    st.textContent='Đang đọc file đối chiếu lệch…';
+    const cong=parseLechFile(await readWB(fileLech));
+    const his=parseHis(await readWB(fileHis));
+    const idx=new Map(); his.forEach(h=>idx.set(h.card+'|'+keyMin(h.din), h));
+    const lech=cong.filter(x=>x.tthai.includes('lệch'));
+    const pairs=[], khong=[];
+    lech.forEach(b=>{
+      const k=b.card+'|'+keyMin(b.din), h=idx.get(k);
+      if(h) pairs.push({h,b,key:k}); else khong.push(b);
+    });
+    lechEdit.clear();
+    lechData={pairs, khong, tong:cong.length, nLech:lech.length};
+    document.getElementById('lechArea').style.display='block';
+    renderLech();
+    st.textContent='File cổng: '+cong.length+' hồ sơ, '+lech.length+' dòng "Đối chiếu lệch" — ghép được '+pairs.length+' với File 1.';
+  }catch(err){ st.className='err'; st.textContent='Lỗi: '+err.message; }
+}
+
+function renderLech(){
+  if(!lechData) return;
+  const showAll=document.getElementById('lechAll').checked;
+  let html='<tr><th>#</th><th>Mã thẻ</th><th>Họ tên (HIS)</th><th>Ngày vào</th><th>Trường</th><th>Giá trị HIS</th><th>Giá trị cổng</th><th>Sửa thành</th></tr>';
+  lechData.pairs.forEach((p,i)=>{
+    const ed=lechEdit.get(p.key)||{};
+    let fs=LECH_F.filter(([f,,t])=> showAll || lechShow(p.h[f],t)!==lechShow(p.b[f],t));
+    if(fs.length===0) fs=[['','(mọi trường đối chiếu đều khớp)','s']];
+    fs.forEach(([f,lab,t],j)=>{
+      const head=j===0 ? '<td rowspan="'+fs.length+'">'+(i+1)+'</td><td rowspan="'+fs.length+'">'+esc(p.h.card)+'</td><td rowspan="'+fs.length+'">'+esc(p.h.name)+'</td><td rowspan="'+fs.length+'">'+fmtDT(p.h.din)+'</td>' : '';
+      const hv=f?lechShow(p.h[f],t):'', bv=f?lechShow(p.b[f],t):'';
+      const cur=f?((f in ed)?lechShow(ed[f],t):bv):'';
+      const inp=f?'<input class="lechinp" data-k="'+esc(p.key)+'" data-f="'+f+'" data-t="'+t+'" value="'+esc(cur)+'">':'';
+      const cls=(f && (f in ed))?' class="lechdone"':'';
+      html+='<tr'+cls+'>'+head+'<td>'+esc(lab)+'</td><td>'+esc(hv)+'</td><td>'+esc(bv)+'</td><td>'+inp+'</td></tr>';
+    });
+  });
+  document.getElementById('tblLech').innerHTML=html;
+  let n=0; lechEdit.forEach(o=>{n+=Object.keys(o).length;});
+  const kh=lechData.khong.length;
+  document.getElementById('lechNote').innerHTML=
+    'Ghép theo <b>Mã thẻ + Ngày vào (đến phút)</b>. Ô "Sửa thành" điền sẵn giá trị của cổng — sửa lại tùy ý rồi bấm <b>Áp dụng &amp; xem BH01</b>. Đang có <b>'+n+'</b> ô sửa thủ công.'+
+    (kh?' <span style="color:var(--err)"><b>'+kh+'</b> hồ sơ lệch trên cổng KHÔNG ghép được với File 1 — thường do lệch chính Ngày vào, phải sửa Ngày vào trong HIS trước: '+
+      lechData.khong.slice(0,6).map(b=>esc(b.name)+' ('+esc(b.card)+')').join('; ')+(kh>6?' …':'')+'</span>':'')+
+    '<br><b>Vì sao cột "Giá trị cổng" thường trùng cột HIS?</b> File này chính là bản Mẫu 01 bệnh viện đã nộp, cổng lưu lại — nên nó khớp HIS. Cổng báo lệch là khi so Mẫu 01 với <b>dữ liệu XML chi tiết</b> gửi trước đó, mà file này không chứa. Vì vậy hãy nhập giá trị đúng vào cột "Sửa thành".'+
+    '<br>Sửa tiền xong tool tự cân đối lại: Tổng chi BH = Bảo hiểm TT + BN cùng chi trả; Tổng chi BV = Tổng chi BH + Nguồn khác + BN tự trả (trừ khi bạn sửa tay chính ô đó).';
+}
+
+// Ghi các sửa đổi thủ công vào danh sách hồ sơ HIS trước khi dựng BH01
+function applyLechEdits(his, marks){
+  if(!lechEdit.size) return 0;
+  const idx=new Map(); his.forEach(h=>idx.set(h.card+'|'+keyMin(h.din), h));
+  const rep={'06':'01','07':'01','05':'02','08':'02','09':'04'};
+  let n=0;
+  lechEdit.forEach((obj,key)=>{
+    const h=idx.get(key); if(!h) return;
+    let money=false;
+    for(const f in obj){
+      h[f]=obj[f]; n++;
+      if(marks){ let s=marks.get(h); if(!s){s=new Set(); marks.set(h,s);} s.add(f); }
+      if(LECH_MONEY.indexOf(f)>=0) money=true;
+      if(f==='kcbRaw') h.kcb=rep[obj[f]]||obj[f];
+    }
+    if(money){
+      if(!('bhyt' in obj)) h.bhyt=(h.bhtt||0)+(h.cct||0);
+      if(!('tong' in obj)) h.tong=(h.bhyt||0)+(h.vientro||0)+(h.tutra||0);
+      if(marks){ const s=marks.get(h); if(s){ if(!('bhyt' in obj)) s.add('bhyt'); if(!('tong' in obj)) s.add('tong'); } }
+    }
+  });
+  return n;
+}
+
+document.getElementById('tblLech').addEventListener('change', e=>{
+  if(!e.target.classList.contains('lechinp')) return;
+  const k=e.target.dataset.k, f=e.target.dataset.f, t=e.target.dataset.t;
+  const p=lechData.pairs.find(x=>x.key===k); if(!p) return;
+  const val=lechParse(e.target.value, t);
+  const o=lechEdit.get(k)||{};
+  if(lechShow(val,t)===lechShow(p.h[f],t)) delete o[f]; else o[f]=val;
+  if(Object.keys(o).length) lechEdit.set(k,o); else lechEdit.delete(k);
+  renderLech();
+});
+document.getElementById('lechAll').addEventListener('change', renderLech);
+document.getElementById('btnLechCong').addEventListener('click', ()=>{
+  if(!lechData) return;
+  lechData.pairs.forEach(p=>{
+    const o={};
+    LECH_F.forEach(([f,,t])=>{ if(lechShow(p.h[f],t)!==lechShow(p.b[f],t)) o[f]=p.b[f]; });
+    if(Object.keys(o).length) lechEdit.set(p.key,o); else lechEdit.delete(p.key);
+  });
+  renderLech();
+});
+document.getElementById('btnLechHis').addEventListener('click', ()=>{ lechEdit.clear(); renderLech(); });
+document.getElementById('btnLechApply').addEventListener('click', async ()=>{
+  const st=document.getElementById('status'); st.className='';
+  try{
+    st.textContent='Đang dựng báo cáo BH01 với các sửa đổi thủ công…';
+    const fx=await buildFixedBH01();
+    renderBH01(bh01Model, fx.n);
+    ghiLog('Sửa thủ công & áp vào BH01', fx.n+' ô sửa · '+bh01Model.n+' hồ sơ');
+    st.textContent='Đã dựng BH01: '+bh01Model.n+' hồ sơ, áp dụng '+fx.n+' sửa đổi.';
+    document.getElementById('bh01Area').scrollIntoView({behavior:'smooth'});
+  }catch(err){ st.className='err'; st.textContent='Lỗi: '+err.message; }
+});
+document.getElementById('btnLechXlsx').addEventListener('click', async ()=>{
+  const st=document.getElementById('status'); st.className='';
+  try{ await buildFixedBH01(); exportBH01Xlsx(bh01Model); st.textContent='Đã tải file Excel BH01 (đã gồm sửa đổi thủ công).'; }
+  catch(err){ st.className='err'; st.textContent='Lỗi: '+err.message; }
+});
+function setLech(f){ ghiLog('Nạp file đối chiếu lệch (cổng)', f&&f.name); fileLech=f; showFile('fiLech','dzLech',f); lechRun(); }
+wireDZ(document.getElementById('dzLech'), document.getElementById('inLech'), 'fiLech', setLech);
+
+
+/* ====== Mục 7: nạp Excel 4750 (Bảng 1) — đối chiếu đầy đủ 15 trường với Mẫu 01 ====== */
+let file4750=null, x47Data=null;
+const X47_SHEET='Bảng 1';
+// 15 trường Mẫu 01/BH mà cổng đối chiếu. TKDLXML chỉ xuất 8 trường; Bảng 1 có đủ cả 15.
+const X47_F=[
+  ['HO_TEN','Họ tên','s'],['NGAY_SINH','Ngày sinh','dob'],['GIOI_TINH','Giới tính','sex'],
+  ['MA_BENH_CHINH','Mã bệnh chính','s'],['NGAY_VAO','Ngày vào','dt'],
+  ['NGAY_VAO_NOI_TRU','Ngày vào nội trú','dt'],['NGAY_RA','Ngày ra','dt'],
+  ['SO_NGAY_DTRI','Số ngày ĐT','n'],['MA_LOAI_KCB','Loại KCB','kcb'],
+  ['T_TONGCHI_BV','Tổng chi BV','n'],['T_TONGCHI_BH','Tổng chi BH','n'],['T_BHTT','Bảo hiểm TT','n'],
+  ['T_BNCCT','BN cùng chi trả','n'],['T_BNTT','BN tự trả','n'],['T_NGUONKHAC','Nguồn khác','n']
+];
+const x47s=v=>String(v==null?'':v).replace(/\.0$/,'').normalize('NFC').trim();
+const x47nodau=v=>x47s(v).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/Đ/gi,'D').toUpperCase().replace(/\s+/g,' ');
+const x47yearOnly=v=>{const s=x47s(v); return s.length>=8 && s.slice(4,8)==='0000';};
+
+// So sánh 1 trường theo đúng cách cổng đối chiếu; trả về '' nếu khớp, 'tone'/'dob' nếu lệch nhẹ, 'diff' nếu lệch thật
+function x47cmp(kind, a, b){
+  const A=x47s(a), B=x47s(b);
+  if(kind==='n'){ return Math.abs((parseFloat(A.replace(/,/g,''))||0)-(parseFloat(B.replace(/,/g,''))||0))<0.005 ? '' : 'diff'; }
+  if(kind==='sex'){ const m=v=>/^(1|nam)$/i.test(v)?'1':/^(2|nữ|nu)$/i.test(v)?'2':v; return m(A)===m(B)?'':'diff'; }
+  if(kind==='kcb'){ return A.padStart(2,'0')===B.padStart(2,'0')?'':'diff'; }
+  if(kind==='dob'){
+    if(A===B) return '';
+    if((x47yearOnly(A)||x47yearOnly(B)) && A.slice(0,4)===B.slice(0,4)) return 'dob'; // 1957 vs 01/01/1957
+    return 'diff';
+  }
+  if(kind==='dt'){ return A.slice(0,12)===B.slice(0,12)?'':'diff'; }
+  if(A===B) return '';
+  return x47nodau(A)===x47nodau(B) ? 'tone' : 'diff';   // khác hoa/thường + vị trí dấu
+}
+
+function parse4750(wb){
+  const name=wb.SheetNames.find(s=>x47nodau(s)===x47nodau(X47_SHEET)) || wb.SheetNames[0];
+  const rows=XLSX.utils.sheet_to_json(wb.Sheets[name],{header:1,raw:true,defval:''});
+  if(!rows.length) throw new Error('Sheet "'+name+'" rỗng.');
+  const H=rows[0].map(x=>x47s(x).toUpperCase());
+  // MA_LK chỉ có ở Bảng 1 của bộ XML 4750. Không có nó thì đây là file khác
+  // (ví dụ chính file Mẫu 01) — nếu cho qua sẽ đối chiếu file với chính nó và luôn báo khớp.
+  if(H.indexOf('MA_LK')<0)
+    throw new Error('Sheet "'+name+'" không phải Bảng 1 của bộ XML 4750 (thiếu cột MA_LK). Hãy chọn workbook 4750 có sheet "Bảng 1".');
+  const need=['MA_THE_BHYT','NGAY_VAO','MA_LOAI_KCB','T_TONGCHI_BV'];
+  const miss=need.filter(n=>H.indexOf(n)<0);
+  if(miss.length) throw new Error('Sheet "'+name+'" thiếu cột: '+miss.join(', ')+' — cần file Excel 4750 có sheet "Bảng 1".');
+  const ix=n=>H.indexOf(n);
+  const out=[];
+  for(let i=1;i<rows.length;i++){
+    const r=rows[i]; if(!r) continue;
+    const card=x47s(r[ix('MA_THE_BHYT')]); if(card.length<10) continue;
+    const o={card, mlk:x47s(r[ix('MA_LK')]), doituong:x47s(r[ix('MA_DOITUONG_KCB')])};
+    X47_F.forEach(([f])=>{ o[f]=x47s(r[ix(f)]); });
+    out.push(o);
+  }
+  return {sheet:name, rows:out};
+}
+
+// Đưa 1 bản ghi Mẫu 01 (đã parse bởi parseHis) về đúng dạng chuỗi của Bảng 1 để so
+function hisToX47(h){
+  const d12=d=>d?''+d.getFullYear()+p2(d.getMonth()+1)+p2(d.getDate())+p2(d.getHours())+p2(d.getMinutes()):'';
+  return {
+    HO_TEN:h.name, NGAY_SINH:d12(h.dob), GIOI_TINH:h.sex, MA_BENH_CHINH:h.icd,
+    NGAY_VAO:d12(h.din), NGAY_VAO_NOI_TRU:d12(h.vnt), NGAY_RA:d12(h.dout),
+    SO_NGAY_DTRI:h.songay, MA_LOAI_KCB:h.kcbRaw||h.kcb,
+    T_TONGCHI_BV:h.tong, T_TONGCHI_BH:h.bhyt, T_BHTT:h.bhtt,
+    T_BNCCT:h.cct, T_BNTT:h.tutra, T_NGUONKHAC:h.vientro
+  };
+}
+
+async function x47Run(){
+  const st=document.getElementById('status'); st.className='';
+  try{
+    if(!file4750) return;
+    if(!fileHis) throw new Error('Chưa nạp File 1 (Mẫu 01 xuất từ HIS) ở mục trên.');
+    st.textContent='Đang đọc Excel 4750…';
+    const p=parse4750(await readWB(file4750));
+    const his=parseHis(await readWB(fileHis));
+    const idx=new Map();
+    p.rows.forEach(b=>{ const k=b.card+'|'+x47s(b.NGAY_VAO).slice(0,12); if(!idx.has(k)) idx.set(k,b); });
+    const det=[], onlyHis=[], used=new Set();
+    his.forEach(h=>{
+      const hv=hisToX47(h);
+      const k=h.card+'|'+x47s(hv.NGAY_VAO).slice(0,12);
+      const b=idx.get(k);
+      if(!b){ onlyHis.push(h); return; }
+      used.add(b);
+      const iss=[];
+      X47_F.forEach(([f,lab,kind])=>{
+        const v=x47cmp(kind, hv[f], b[f]);
+        if(v) iss.push({f,lab,kind,loai:v,his:x47s(hv[f]),xml:x47s(b[f])});
+      });
+      if(iss.length) det.push({h,b,iss});
+    });
+    const onlyXml=p.rows.filter(b=>!used.has(b));
+    x47Data={sheet:p.sheet, nXml:p.rows.length, nHis:his.length, det, onlyHis, onlyXml};
+    document.getElementById('x47Area').style.display='block';
+    renderX47();
+    st.textContent='Bảng 1: '+p.rows.length+' hồ sơ · ghép '+(his.length-onlyHis.length)+'/'+his.length+' · '+det.length+' hồ sơ có trường lệch.';
+  }catch(err){ x47Data=null; st.className='err'; st.textContent='Lỗi: '+err.message; }
+}
+
+function renderX47(){
+  if(!x47Data) return;
+  const d=x47Data;
+  let nThat=0, nNhe=0;
+  d.det.forEach(o=>o.iss.forEach(i=>{ if(i.loai==='diff') nThat++; else nNhe++; }));
+  document.getElementById('x47Stat').innerHTML=
+    '<div class="stat"><div class="v">'+d.nXml+'</div><div class="l">Hồ sơ Bảng 1</div></div>'+
+    '<div class="stat"><div class="v">'+(d.nHis-d.onlyHis.length)+'/'+d.nHis+'</div><div class="l">Ghép với Mẫu 01</div></div>'+
+    '<div class="stat '+(nThat?'err':'ok')+'"><div class="v">'+nThat+'</div><div class="l">Ô lệch thật</div></div>'+
+    '<div class="stat '+(nNhe?'warn':'ok')+'"><div class="v">'+nNhe+'</div><div class="l">Lệch nhẹ (cổng thường bỏ qua)</div></div>'+
+    '<div class="stat '+((d.onlyHis.length+d.onlyXml.length)?'err':'ok')+'"><div class="v">'+(d.onlyHis.length+d.onlyXml.length)+'</div><div class="l">Hồ sơ chỉ có 1 bên</div></div>';
+
+  let html='<tr><th>#</th><th>Mã thẻ</th><th>Họ tên</th><th>Mã liên kết</th><th>Ngày vào</th><th>Trường</th><th>Mẫu 01</th><th>Bảng 1 (XML)</th><th>Loại</th></tr>';
+  if(!d.det.length) html+='<tr><td colspan="9" style="color:var(--ok);font-weight:600">✓ Toàn bộ 15 trường của Mẫu 01 khớp với Bảng 1 trên mọi hồ sơ ghép được.</td></tr>';
+  d.det.forEach((o,i)=>{
+    o.iss.forEach((is,j)=>{
+      const head=j===0?'<td rowspan="'+o.iss.length+'">'+(i+1)+'</td><td rowspan="'+o.iss.length+'">'+esc(o.h.card)+'</td><td rowspan="'+o.iss.length+'">'+esc(o.h.name)+'</td><td rowspan="'+o.iss.length+'">'+esc(o.b.mlk)+'</td><td rowspan="'+o.iss.length+'">'+fmtDT(o.h.din)+'</td>':'';
+      const badge=is.loai==='diff'?'<span class="badge b-err">Lệch thật</span>'
+                : is.loai==='tone'?'<span class="badge b-warn">Lệch dấu/hoa thường</span>'
+                : '<span class="badge b-warn">Ngày sinh chỉ có năm</span>';
+      html+='<tr>'+head+'<td>'+esc(is.lab)+'</td><td>'+esc(is.his)+'</td><td>'+esc(is.xml)+'</td><td>'+badge+'</td></tr>';
+    });
+  });
+  document.getElementById('tblX47').innerHTML=html;
+
+  let o2='';
+  if(d.onlyHis.length||d.onlyXml.length){
+    o2='<tr><th>Nguồn</th><th>Mã thẻ</th><th>Họ tên</th><th>Ngày vào</th></tr>'
+      + d.onlyHis.map(h=>'<tr><td><span class="badge b-err">Chỉ ở Mẫu 01</span></td><td>'+esc(h.card)+'</td><td>'+esc(h.name)+'</td><td>'+fmtDT(h.din)+'</td></tr>').join('')
+      + d.onlyXml.map(b=>'<tr><td><span class="badge b-err">Chỉ ở Bảng 1</span></td><td>'+esc(b.card)+'</td><td>'+esc(b.HO_TEN)+'</td><td>'+esc(b.NGAY_VAO)+'</td></tr>').join('');
+  }
+  document.getElementById('x47Orphan').innerHTML=o2;
+  document.getElementById('x47OrphanWrap').style.display=o2?'block':'none';
+  document.getElementById('x47Note').innerHTML=
+    'Đối chiếu <b>đúng 15 trường mà cổng dùng để đối chiếu Mẫu 01</b> — nhiều hơn hẳn file TKDLXML (chỉ xuất 8 trường, thiếu Ngày vào nội trú, Số ngày ĐT, Loại KCB, Tổng chi BH, Nguồn khác). '+
+    'Vì vậy mục này bắt được loại lệch mà mục 3 không thấy. Khoá ghép: <b>Mã thẻ + Ngày vào (đến phút)</b>.'+
+    '<br><b>Lệch nhẹ</b>: ngày sinh chỉ có năm (1957 ↔ 01/01/1957) và họ tên khác hoa/thường hoặc vị trí dấu — thực tế cổng không bắt lỗi các trường hợp này.'+
+    '<br>Lưu ý: Bảng 1 là dữ liệu <b>hiện tại trong HIS</b>. Nếu hồ sơ đã gửi cổng rồi bị sửa lại trong HIS thì Bảng 1 sẽ khớp Mẫu 01 nhưng vẫn lệch với XML đang nằm trên cổng — trường hợp đó phải xem file TKDLXML ở mục 3.';
+}
+
+document.getElementById('btnX47Xlsx').addEventListener('click', ()=>{
+  if(!x47Data) return;
+  const aoa=[['STT','Mã thẻ','Họ tên','Mã liên kết','Ngày vào','Trường','Giá trị Mẫu 01','Giá trị Bảng 1 (XML 4750)','Phân loại']];
+  x47Data.det.forEach((o,i)=>o.iss.forEach(is=>aoa.push([i+1,o.h.card,o.h.name,o.b.mlk,fmtDT(o.h.din),is.lab,is.his,is.xml,
+    is.loai==='diff'?'Lệch thật':is.loai==='tone'?'Lệch dấu/hoa thường':'Ngày sinh chỉ có năm'])));
+  x47Data.onlyHis.forEach(h=>aoa.push(['','','','','','Chỉ có ở Mẫu 01',h.card+' · '+h.name,fmtDT(h.din),'Thiếu ở Bảng 1']));
+  x47Data.onlyXml.forEach(b=>aoa.push(['','','','','','Chỉ có ở Bảng 1',b.card+' · '+b.HO_TEN,b.NGAY_VAO,'Thiếu ở Mẫu 01']));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), 'Mau01 vs Bang1');
+  ghiLog('Xuất đối chiếu Mẫu 01 ↔ Bảng 1 (4750)', x47Data.det.length+' hồ sơ lệch');
+  XLSX.writeFile(wb, 'DoiChieu_Mau01_vs_4750_Bang1.xlsx');
+  document.getElementById('status').className='';
+  document.getElementById('status').textContent='Đã tải file kết quả đối chiếu Mẫu 01 ↔ Bảng 1.';
+});
+function set4750(f){ ghiLog('Nạp Excel 4750 (Bảng 1)', f&&f.name); file4750=f; showFile('fi4750','dz4750',f); x47Run(); }
+wireDZ(document.getElementById('dz4750'), document.getElementById('in4750'), 'fi4750', set4750);
+
+
+/* ================== NHẬT KÝ HOẠT ĐỘNG (chỉ admin xem được) ==================
+   Lưu trong localStorage của CHÍNH máy này — không đồng bộ sang máy khác, và
+   người dùng có kỹ thuật vẫn xoá/sửa được qua devtools. Dùng để biết ai đã làm
+   gì trên một máy dùng chung, không phải nhật ký chống giả mạo.              */
+const LOG_KEY='bh0102_nhatky', LOG_MAX=2000;
+function docLog(){ try{ const a=JSON.parse(localStorage.getItem(LOG_KEY)); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function ghiLog(thaotac, chitiet){
+  try{
+    let p=null; try{ p=JSON.parse(sessionStorage.getItem(AUTH_KEY)); }catch(e){}
+    const a=docLog();
+    a.push({t:Date.now(), u:(p&&p.user)||'?', ten:(p&&p.ten)||'', tt:String(thaotac||''), ct:String(chitiet==null?'':chitiet)});
+    while(a.length>LOG_MAX) a.shift();
+    localStorage.setItem(LOG_KEY, JSON.stringify(a));
+    if(typeof renderLog==='function' && document.getElementById('tabLog') &&
+       document.getElementById('tabLog').style.display!=='none') renderLog();
+  }catch(e){}
+}
+// ghi khi CHƯA có phiên (đăng nhập thất bại) — dùng tên tài khoản đã gõ
+function ghiLogAn(user, thaotac, chitiet){
+  try{
+    const a=docLog();
+    a.push({t:Date.now(), u:String(user||'?'), ten:'', tt:String(thaotac||''), ct:String(chitiet==null?'':chitiet)});
+    while(a.length>LOG_MAX) a.shift();
+    localStorage.setItem(LOG_KEY, JSON.stringify(a));
+  }catch(e){}
+}
+function laAdmin(){
+  let p=null; try{ p=JSON.parse(sessionStorage.getItem(AUTH_KEY)); }catch(e){}
+  return !!(p && AUTH_USERS[p.user] && AUTH_USERS[p.user].vaitro==='admin');
+}
+function capNhatTabLog(){
+  const bt=document.querySelector('#tabNav button[data-tab="tabLog"]');
+  if(bt) bt.style.display = laAdmin() ? '' : 'none';
+}
+const logDT=ms=>{const d=new Date(ms);
+  return p2(d.getDate())+'/'+p2(d.getMonth()+1)+'/'+d.getFullYear()+' '+p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds());};
+
+function renderLog(){
+  const wrap=document.getElementById('logWrap'), deny=document.getElementById('logDeny');
+  if(!laAdmin()){ if(wrap) wrap.style.display='none'; if(deny) deny.style.display='block'; return; }
+  if(wrap) wrap.style.display='block'; if(deny) deny.style.display='none';
+  const all=docLog();
+  const fU=(document.getElementById('logFU').value||'').trim().toLowerCase();
+  const fT=(document.getElementById('logFT').value||'').trim().toLowerCase();
+  const fD=(document.getElementById('logFD').value||'').trim();
+  const ds=all.filter(e=>{
+    if(fU && String(e.u).toLowerCase().indexOf(fU)<0 && String(e.ten).toLowerCase().indexOf(fU)<0) return false;
+    if(fT && (String(e.tt)+' '+String(e.ct)).toLowerCase().indexOf(fT)<0) return false;
+    if(fD && logDT(e.t).slice(0,10)!==fD) return false;
+    return true;
+  }).reverse();   // mới nhất lên đầu
+
+  const nU={}; all.forEach(e=>{ nU[e.u]=(nU[e.u]||0)+1; });
+  const nFail=all.filter(e=>e.tt.indexOf('THẤT BẠI')>=0).length;
+  document.getElementById('logStat').innerHTML=
+    '<div class="stat"><div class="v">'+all.length+'</div><div class="l">Tổng bản ghi</div></div>'+
+    '<div class="stat"><div class="v">'+Object.keys(nU).length+'</div><div class="l">Tài khoản đã dùng máy này</div></div>'+
+    '<div class="stat '+(nFail?'warn':'ok')+'"><div class="v">'+nFail+'</div><div class="l">Lần đăng nhập thất bại</div></div>'+
+    '<div class="stat"><div class="v">'+ds.length+'</div><div class="l">Đang hiển thị</div></div>';
+
+  let html='<tr><th>Thời gian</th><th>Tài khoản</th><th>Họ tên</th><th>Thao tác</th><th>Chi tiết</th></tr>';
+  if(!ds.length) html+='<tr><td colspan="5" style="color:var(--muted)">Chưa có bản ghi nào khớp bộ lọc.</td></tr>';
+  ds.slice(0,500).forEach(e=>{
+    const err=e.tt.indexOf('THẤT BẠI')>=0;
+    html+='<tr'+(err?' style="background:var(--err-bg)"':'')+'><td>'+logDT(e.t)+'</td><td>'+esc(e.u)+'</td><td>'+esc(e.ten)+'</td><td>'+esc(e.tt)+'</td><td>'+esc(e.ct)+'</td></tr>';
+  });
+  document.getElementById('tblLog').innerHTML=html;
+  document.getElementById('logNote').innerHTML=
+    'Nhật ký lưu trong <b>localStorage của chính máy này</b> — không đồng bộ sang máy khác, và người dùng có kỹ thuật vẫn xoá/sửa được qua devtools. '+
+    'Dùng để biết ai đã làm gì trên một máy dùng chung, không phải nhật ký chống giả mạo. Giữ tối đa '+LOG_MAX+' bản ghi gần nhất'+
+    (ds.length>500?', bảng chỉ hiển thị 500 dòng mới nhất — xuất Excel để xem đủ':'')+'.';
+}
+
+document.getElementById('logFU').addEventListener('input', renderLog);
+document.getElementById('logFT').addEventListener('input', renderLog);
+document.getElementById('logFD').addEventListener('input', renderLog);
+document.getElementById('btnLogClear').addEventListener('click', ()=>{
+  if(!laAdmin()) return;
+  const n=docLog().length;
+  if(!confirm('Xoá toàn bộ '+n+' bản ghi nhật ký trên máy này? Không khôi phục được.')) return;
+  try{ localStorage.removeItem(LOG_KEY); }catch(e){}
+  ghiLog('Xoá nhật ký', 'đã xoá '+n+' bản ghi');
+  renderLog();
+});
+document.getElementById('btnLogXlsx').addEventListener('click', ()=>{
+  if(!laAdmin()) return;
+  const aoa=[['Thời gian','Tài khoản','Họ tên','Thao tác','Chi tiết']];
+  docLog().slice().reverse().forEach(e=>aoa.push([logDT(e.t), e.u, e.ten, e.tt, e.ct]));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(aoa), 'NhatKy');
+  XLSX.writeFile(wb, 'NhatKy_HoatDong_'+stamp()+'.xlsx');
+  ghiLog('Xuất nhật ký', String(docLog().length)+' bản ghi');
+});
+
 </script>
 </body>
 </html>
